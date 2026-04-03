@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Formula E · Evidence & Hypothesis Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #0A0E1A;
+  --surface:  #111827;
+  --surfaceL: #1A2540;
+  --tealD:    #2D4A47;
+  --teal:     #3D6B65;
+  --tealL:    #4A8C85;
+  --green:    #3A7D44;
+  --greenL:   #4CAF5A;
+  --orange:   #C0552A;
+  --gold:     #A07830;
+  --goldL:    #C9A050;
+  --purple:   #7A3060;
+  --feBlue:   #00A0DC;
+  --feBlueLt: #33BBEF;
+  --ivory:    #F5F0E0;
+  --ivoryD:   #EDE8D5;
+  --white:    #FFFFFF;
+  --gray:     #8A9BB0;
+  --grayD:    #4A5568;
+  --red:      #EF4444;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.header {
+  background: var(--surface);
+  border-bottom: 2px solid var(--tealD);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
+.logo {
+  display: flex; align-items: center; gap: 12px;
+}
+.logo-mark {
+  width: 36px; height: 36px;
+  background: var(--feBlue);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px; font-weight: 500;
+  color: var(--bg);
+}
+.logo-text {
+  font-size: 13px; font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.5px;
+}
+.logo-text span { color: var(--white); }
+.hult-badge {
+  font-size: 10px; font-weight: 600;
+  color: var(--tealL);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  border: 1px solid var(--tealD);
+  padding: 4px 10px;
+}
+
+/* ── TABS ─────────────────────────────────── */
+.tabs {
+  display: flex;
+  gap: 0;
+  padding: 0 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--tealD);
+}
+.tab {
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--gray);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
+  letter-spacing: 0.3px;
+}
+.tab:hover { color: var(--white); }
+.tab.active { color: var(--feBlue); border-bottom-color: var(--feBlue); }
+
+/* ── MAIN ─────────────────────────────────── */
+.main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 36px 32px 80px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── SECTION HEADERS ─────────────────────── */
+.section-label {
+  font-size: 10px; font-weight: 700;
+  color: var(--feBlue);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.section-title {
+  font-size: 22px; font-weight: 700;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.section-sub {
+  font-size: 13px; color: var(--gray);
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+
+/* ── CARDS ─────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--tealD);
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+.card-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--white);
+  margin-bottom: 6px;
+}
+.card-body {
+  font-size: 12px; color: var(--gray);
+  line-height: 1.6;
+}
+
+/* ── FORM ELEMENTS ─────────────────────────── */
+label {
+  display: block;
+  font-size: 11px; font-weight: 600;
+  color: var(--gray);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 7px;
+}
+select, input[type=text], textarea {
+  width: 100%;
+  background: var(--surfaceL);
+  border: 1px solid var(--tealD);
+  color: var(--white);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  padding: 11px 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  appearance: none;
+}
+select:focus, input[type=text]:focus, textarea:focus {
+  border-color: var(--feBlue);
+}
+select option { background: var(--surface); }
+textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.form-row { margin-bottom: 18px; }
+.form-row.full { grid-column: 1 / -1; }
+
+.btn {
+  display: inline-flex;
+  align-items: center; gap: 8px;
+  padding: 12px 24px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: var(--feBlue);
+  color: var(--bg);
+}
+.btn-primary:hover { background: var(--feBlueLt); }
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--tealD);
+  color: var(--gray);
+}
+.btn-secondary:hover { border-color: var(--gray); color: var(--white); }
+
+/* ── OUTPUT AREAS ─────────────────────────── */
+.output {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+.output.show { display: block; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.output-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  background: var(--tealD);
+  border-left: 4px solid var(--feBlue);
+  margin-bottom: 16px;
+}
+.output-header-title {
+  font-size: 14px; font-weight: 700;
+  color: var(--white);
+}
+.output-header-sub {
+  font-size: 11px; color: var(--tealL);
+  margin-top: 2px;
+}
+
+.evidence-card {
+  background: var(--surface);
+  border: 1px solid var(--tealD);
+  border-left: 4px solid var(--feBlue);
+  padding: 16px 20px;
+  margin-bottom: 10px;
+}
+.evidence-card.green  { border-left-color: var(--green); }
+.evidence-card.gold   { border-left-color: var(--gold); }
+.evidence-card.orange { border-left-color: var(--orange); }
+.evidence-card.purple { border-left-color: var(--purple); }
+
+.ev-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1.2px; text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.ev-label.blue   { color: var(--feBlue); }
+.ev-label.green  { color: var(--greenL); }
+.ev-label.gold   { color: var(--goldL); }
+.ev-label.orange { color: var(--orange); }
+.ev-label.purple { color: #B060A0; }
+
+.ev-title {
+  font-size: 14px; font-weight: 600;
+  color: var(--white); margin-bottom: 5px;
+}
+.ev-body {
+  font-size: 12.5px; color: var(--gray);
+  line-height: 1.55;
+}
+.ev-source {
+  font-size: 10.5px; color: var(--grayD);
+  margin-top: 7px;
+  font-family: 'DM Mono', monospace;
+}
+
+/* Hypothesis output */
+.hyp-block {
+  background: var(--surface);
+  border: 1px solid var(--tealD);
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.hyp-row {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  border-bottom: 1px solid var(--tealD);
+}
+.hyp-row:last-child { border-bottom: none; }
+.hyp-key {
+  padding: 13px 16px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--white);
+  display: flex; align-items: flex-start;
+}
+.hyp-val {
+  padding: 13px 16px;
+  font-size: 13px; color: var(--ivory);
+  line-height: 1.5;
+  border-left: 1px solid var(--tealD);
+}
+.hyp-val em { font-style: normal; font-weight: 600; color: var(--feBlue); }
+.hyp-val.pass { color: var(--greenL); font-weight: 600; }
+.hyp-val.fail { color: var(--orange); font-weight: 600; }
+
+.key-if     { background: #001F2D; }
+.key-then   { background: #0D2014; }
+.key-metric { background: #1A1506; }
+.key-pass   { background: #0D2014; }
+.key-fail   { background: #2D0F00; }
+.key-pivot  { background: #1A1020; }
+
+/* Tag pills */
+.tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.tag {
+  font-size: 10px; font-weight: 600;
+  padding: 3px 10px;
+  letter-spacing: 0.5px;
+}
+.tag-blue   { background: rgba(0,160,220,0.15); color: var(--feBlue); border: 1px solid rgba(0,160,220,0.3); }
+.tag-green  { background: rgba(58,125,68,0.15); color: var(--greenL); border: 1px solid rgba(58,125,68,0.3); }
+.tag-gold   { background: rgba(160,120,48,0.15); color: var(--goldL); border: 1px solid rgba(160,120,48,0.3); }
+.tag-orange { background: rgba(192,85,42,0.15); color: var(--orange); border: 1px solid rgba(192,85,42,0.3); }
+
+/* Divider */
+.divider {
+  border: none;
+  border-top: 1px solid var(--tealD);
+  margin: 28px 0;
+}
+
+/* Tool matrix */
+.tool-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+.tool-card {
+  background: var(--surface);
+  border: 1px solid var(--tealD);
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.tool-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.tool-card.blue::before   { background: var(--feBlue); }
+.tool-card.green::before  { background: var(--green); }
+.tool-card.gold::before   { background: var(--gold); }
+.tool-card.orange::before { background: var(--orange); }
+.tool-card.purple::before { background: var(--purple); }
+.tool-card.teal::before   { background: var(--teal); }
+
+.tool-card:hover { border-color: var(--tealL); background: var(--surfaceL); }
+.tool-card.selected { border-color: var(--feBlue); background: rgba(0,160,220,0.06); }
+
+.tool-name {
+  font-size: 13px; font-weight: 700;
+  color: var(--white); margin-bottom: 4px;
+}
+.tool-desc { font-size: 11px; color: var(--gray); line-height: 1.4; }
+
+/* ── ASSUMPTION CHECKER ── */
+.assumption-input {
+  background: var(--surfaceL);
+  border: 1px solid var(--tealD);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.checker-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.checker-col-label {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 8px 14px;
+  margin-bottom: 8px;
+}
+.checker-col-label.needs { color: var(--orange); background: rgba(192,85,42,0.1); border-left: 3px solid var(--orange); }
+.checker-col-label.has   { color: var(--greenL); background: rgba(58,125,68,0.1); border-left: 3px solid var(--greenL); }
+
+.step-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 600;
+  padding: 2px 10px 2px 2px;
+  margin-bottom: 6px;
+}
+.step-num {
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800;
+  color: var(--bg);
+}
+
+/* Copy button */
+.copy-btn {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.8px;
+  color: var(--gray);
+  background: none;
+  border: 1px solid var(--tealD);
+  padding: 4px 10px;
+  cursor: pointer;
+  float: right;
+  transition: all 0.2s;
+}
+.copy-btn:hover { color: var(--white); border-color: var(--gray); }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-mark">FE</div>
+    <div>
+      <div class="logo-text"><span>Evidence & Hypothesis Builder</span></div>
+      <div style="font-size:10px;color:var(--tealL);letter-spacing:0.5px;margin-top:1px;">Formula E · A3 Assignment Tool</div>
+    </div>
+  </div>
+  <div class="hult-badge">Marketing Analytics for Growth · Hult</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('assumption')">① Assumption Checker</div>
+  <div class="tab" onclick="switchTab('tool')">② Tool → Evidence Map</div>
+  <div class="tab" onclick="switchTab('hypothesis')">③ Hypothesis Builder</div>
+</div>
+
+<div class="main">
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PANEL 1: ASSUMPTION CHECKER                       -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel active" id="panel-assumption">
+    <div class="section-label">Panel 1 of 3</div>
+    <div class="section-title">Assumption Checker</div>
+    <div class="section-sub">Select the claim you want to make in your pitch. The tool tells you exactly what evidence you need and which tool produces it.</div>
+
+    <div class="form-row">
+      <label>What assumption are you making?</label>
+      <select id="assumption-select" onchange="checkAssumption()">
+        <option value="">— Select an assumption —</option>
+        <optgroup label="About the audience">
+          <option value="seg_platform">My segment lives primarily on [platform]</option>
+          <option value="seg_interests">My segment cares about [interest/topic]</option>
+          <option value="seg_different">My segments behave differently online</option>
+          <option value="seg_real">My segment actually exists as a distinct group</option>
+        </optgroup>
+        <optgroup label="About the conversion gap">
+          <option value="gap_exists">The conversion gap between social and website is real</option>
+          <option value="gap_platform">Social media is not driving meaningful web traffic</option>
+          <option value="gap_site">The website itself creates friction</option>
+          <option value="gap_mobile">Mobile performance is a blocker</option>
+        </optgroup>
+        <optgroup label="About the blocker">
+          <option value="blocker_habit">Discovery Fans have no habit loop to go beyond social</option>
+          <option value="blocker_frame">EV Converts are put off by the motorsport framing</option>
+          <option value="blocker_lapsed">Lapsed Engagers have no re-entry hook</option>
+          <option value="blocker_site">On-site UX is causing drop-off</option>
+        </optgroup>
+        <optgroup label="About the strategy">
+          <option value="strat_competition">Competition mechanics convert better than generic CTAs</option>
+          <option value="strat_gated">Gated content converts high-intent fans</option>
+          <option value="strat_email">Post-registration email drives loyalty</option>
+          <option value="strat_app">App retention can be improved with day-1 activation</option>
+          <option value="strat_segment_diff">Different segments need different tactics</option>
+        </optgroup>
+        <optgroup label="About KPIs">
+          <option value="kpi_baseline">Our baseline conversion rate is below industry average</option>
+          <option value="kpi_target">Our target conversion rate is realistic</option>
+          <option value="kpi_email">Our email open rate target is achievable</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="output" id="assumption-output">
+      <div class="output-header">
+        <div>
+          <div class="output-header-title" id="ao-title"></div>
+          <div class="output-header-sub" id="ao-sub"></div>
+        </div>
+      </div>
+
+      <div class="checker-grid">
+        <div>
+          <div class="checker-col-label needs">Evidence you need</div>
+          <div id="ao-needs"></div>
+        </div>
+        <div>
+          <div class="checker-col-label has">Tool that produces it</div>
+          <div id="ao-tools"></div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <div class="card">
+        <div class="card-title">Benchmark figure to cite</div>
+        <div class="card-body" id="ao-benchmark"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">What weak evidence looks like vs strong evidence</div>
+        <div class="card-body" id="ao-quality"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PANEL 2: TOOL → EVIDENCE MAP                      -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-tool">
+    <div class="section-label">Panel 2 of 3</div>
+    <div class="section-title">Tool → Evidence Map</div>
+    <div class="section-sub">Select a tool you've used. See exactly what each output proves, which assumption it supports, and how to annotate the screenshot for the pitch deck.</div>
+
+    <div style="margin-bottom:20px;">
+      <label>Which tool did you use?</label>
+      <div class="tool-grid">
+        <div class="tool-card blue" onclick="selectTool('similarweb')">
+          <div class="tool-name">SimilarWeb</div>
+          <div class="tool-desc">Traffic intelligence, source breakdown, competitor comparison</div>
+        </div>
+        <div class="tool-card green" onclick="selectTool('sparktoro')">
+          <div class="tool-name">SparkToro</div>
+          <div class="tool-desc">Audience habits, website overlap, content preferences</div>
+        </div>
+        <div class="tool-card gold" onclick="selectTool('semrush')">
+          <div class="tool-name">SEMrush / Google KP</div>
+          <div class="tool-desc">Search intent, keyword gaps, organic vs paid</div>
+        </div>
+        <div class="tool-card orange" onclick="selectTool('apify')">
+          <div class="tool-name">Apify / Export Comments</div>
+          <div class="tool-desc">Social sentiment, fan quotes, friction language</div>
+        </div>
+        <div class="tool-card purple" onclick="selectTool('pagespeed')">
+          <div class="tool-name">PageSpeed / UX Walk</div>
+          <div class="tool-desc">Mobile performance, on-site friction, registration flow</div>
+        </div>
+        <div class="tool-card teal" onclick="selectTool('brevo')">
+          <div class="tool-name">Brevo / Mailchimp</div>
+          <div class="tool-desc">CRM journey, post-registration lifecycle, segmentation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="output" id="tool-output">
+      <div class="output-header">
+        <div>
+          <div class="output-header-title" id="to-title"></div>
+          <div class="output-header-sub" id="to-sub"></div>
+        </div>
+      </div>
+      <div id="to-cards"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PANEL 3: HYPOTHESIS BUILDER                        -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-hypothesis">
+    <div class="section-label">Panel 3 of 3</div>
+    <div class="section-title">Test & Learn Hypothesis Builder</div>
+    <div class="section-sub">Fill in the four inputs. The builder generates a complete, evidence-grounded hypothesis ready for your pitch deck.</div>
+
+    <div style="background:var(--surfaceL);border:1px solid var(--tealD);padding:22px;margin-bottom:24px;">
+      <div class="form-grid">
+        <div class="form-row">
+          <label>Segment</label>
+          <select id="h-segment">
+            <option value="">— Select segment —</option>
+            <option value="discovery">Discovery Fan (18–24 · TikTok/Instagram)</option>
+            <option value="lapsed">Lapsed Engager (X / Reddit)</option>
+            <option value="ev">EV Convert (Instagram / LinkedIn)</option>
+            <option value="highintent">High-Intent Fan (X / Reddit)</option>
+            <option value="custom">Custom segment</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Platform / Channel</label>
+          <select id="h-platform">
+            <option value="">— Select platform —</option>
+            <option value="tiktok">TikTok bio link → formulae.com</option>
+            <option value="instagram">Instagram swipe-up / link in bio</option>
+            <option value="x">X / Twitter pinned thread</option>
+            <option value="reddit">Reddit post + link</option>
+            <option value="email">CRM email sequence</option>
+            <option value="app">App store → in-app registration</option>
+            <option value="seo">Organic search → landing page</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Conversion Mechanic</label>
+          <select id="h-mechanic">
+            <option value="">— Select mechanic —</option>
+            <option value="competition">Competition entry (prize required to register)</option>
+            <option value="gated">Gated content (download requires registration)</option>
+            <option value="exclusive">Exclusive access (early race content)</option>
+            <option value="reengagement">Re-engagement email (new season hook)</option>
+            <option value="innovation">Innovation narrative (tech-first content)</option>
+            <option value="predictor">Predictor game (gamification)</option>
+            <option value="appdownload">App download prompt (race alert incentive)</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Primary KPI to move</label>
+          <select id="h-kpi">
+            <option value="">— Select KPI —</option>
+            <option value="registration">formulae.com registration rate</option>
+            <option value="appdownload">App download rate</option>
+            <option value="emailopen">Welcome email open rate</option>
+            <option value="emailctr">Email click-through rate</option>
+            <option value="day30">Day-30 app retention</option>
+            <option value="crmopen">Re-engagement email open rate</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="buildHypothesis()">Generate Hypothesis →</button>
+      <button class="btn btn-secondary" onclick="clearHypothesis()" style="margin-left:10px;">Clear</button>
+    </div>
+
+    <div class="output" id="hypothesis-output">
+      <div class="output-header">
+        <div>
+          <div class="output-header-title">Generated Test & Learn Hypothesis</div>
+          <div class="output-header-sub" id="ho-sub"></div>
+        </div>
+        <button class="copy-btn" onclick="copyHypothesis()">COPY</button>
+      </div>
+
+      <div class="hyp-block" id="ho-block"></div>
+
+      <hr class="divider">
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="evidence-card green">
+          <div class="ev-label green">Evidence grounding this hypothesis</div>
+          <div class="ev-body" id="ho-evidence"></div>
+        </div>
+        <div class="evidence-card orange">
+          <div class="ev-label orange">What the panel will ask — prepare this</div>
+          <div class="ev-body" id="ho-challenge"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:12px;">
+        <div class="card-title">Pitch deck placement</div>
+        <div class="card-body" id="ho-placement"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════════════════
+
+const ASSUMPTIONS = {
+  seg_platform: {
+    title: "My segment lives primarily on [platform]",
+    sub: "Audience habitat claim",
+    needs: ["SparkToro audience profile showing platform over-indexing","Reddit thread data showing platform-specific language","Apify scrape showing platform-specific fan voice"],
+    tools: ["SparkToro: run audience description and screenshot 'Social Accounts' section — shows which platforms audience uses above average","Apify: scrape r/FormulaE and filter by users who mention TikTok/Instagram — shows self-reported platform habits"],
+    benchmark: "No industry benchmark required — this is a descriptive finding from your tools. The strength is in the specificity: 'SparkToro shows our Discovery Fan segment over-indexes on TikTok by 3.2× compared to the average internet user.'",
+    quality: "WEAK: 'We believe TikTok fans are younger.' STRONG: 'SparkToro shows the Discovery Fan audience over-indexes on TikTok by 3.2× compared to the average internet user, and under-indexes on LinkedIn by 0.4×. This was confirmed by Apify comment analysis showing 73% of short-form engagement language originates from mobile-first platforms.'"
+  },
+  seg_interests: {
+    title: "My segment cares about [interest/topic]",
+    sub: "Audience interest claim",
+    needs: ["SparkToro 'Top websites visited' showing relevant content categories","Apify quotes showing fans using relevant vocabulary","SEMrush keyword data showing relevant search queries"],
+    tools: ["SparkToro: screenshot 'Websites & Blogs' section — sites visited reveal interest clusters (e.g. r/EVs, Wired, The Verge for EV Convert)","SEMrush: keyword gap analysis showing what queries your audience searches vs what FE captures","Apify: Reddit comment sentiment showing frequency of tech/sustainability language"],
+    benchmark: "SparkToro affinity scores are self-referential — compare your three searches. If EV Convert audience visits Rivian.com at 4× the rate of the Discovery Fan audience, that's a segment distinction, not an absolute benchmark.",
+    quality: "WEAK: 'EV Converts care about sustainability.' STRONG: 'SparkToro shows the EV Convert audience segment visits Wired.com at 2.8× the rate of the Discovery Fan segment, and r/electricvehicles at 4.1× the rate. Apify analysis of 200 Reddit comments surfaced 'race-to-road technology' as the third most common phrase, appearing in 31% of EV-adjacent posts.'"
+  },
+  seg_different: {
+    title: "My segments behave differently online",
+    sub: "Segment distinctiveness claim — the most important claim to prove",
+    needs: ["Side-by-side SparkToro outputs for each segment showing different website lists","Different search intent data per segment from SEMrush/Google KP","Different language patterns from Apify per segment"],
+    tools: ["SparkToro: run all three searches and screenshot the 'Top websites visited' for each — annotate differences in red","SEMrush: group keywords by segment intent (highlights / race results / EV technology)","Apify: label Reddit quotes by segment type to show language divergence"],
+    benchmark: "There is no industry benchmark for this — the evidence IS the comparison. If your three SparkToro searches return nearly identical website lists, you either have the wrong segment definitions or your audience is more homogeneous than assumed.",
+    quality: "WEAK: 'Our segments are different because they are different ages.' STRONG: 'SparkToro comparison shows Discovery Fans visit YouTube Shorts and TikTok Creator Marketplace at 2.4× the average rate. EV Converts visit Electrek.co and InsideEVs.com at 3.1× the average rate. These audiences share zero overlap in their top-10 visited websites — confirming genuine behavioural distinction.'"
+  },
+  seg_real: {
+    title: "My segment actually exists as a distinct group",
+    sub: "Segment validity claim",
+    needs: ["Three tool outputs pointing at the same group","Apify quote cluster showing a distinct voice","SparkToro showing distinct online habitat"],
+    tools: ["SparkToro: divergent website lists across segments","Apify: quote clusters — does one group consistently say 'I just watch clips' while another says 'I used to be obsessed'?","SEMrush: distinct search intent patterns per group"],
+    benchmark: "The test is the Tactic Test: would a different tactic be needed to convert each group? If yes — the segment is real. Industry validation comes from Salesforce State of the Connected Fan which shows registered sports fans have 4–7× higher LTV than social-only followers, justifying segment-level investment.",
+    quality: "WEAK: 'We think there are three types of Formula E fans.' STRONG: 'Three independent tool outputs — SparkToro platform divergence, Apify language clustering, and SEMrush search intent differentiation — confirm the existence of distinct audience groups requiring differentiated conversion approaches. The Tactic Test confirms: a competition mechanic converts the Discovery Fan; an innovation reframe converts the EV Convert. One tactic cannot serve both.'"
+  },
+  gap_exists: {
+    title: "The conversion gap between social and website is real",
+    sub: "The North Star diagnosis",
+    needs: ["SimilarWeb showing social referral % of formulae.com traffic","Formula E follower count vs website traffic ratio","Data Starter Pack registration figures (when available)"],
+    tools: ["SimilarWeb: traffic source breakdown for formulae.com — screenshot showing % from social vs direct vs organic","SimilarWeb: absolute traffic volume compared to 422M global fanbase — the ratio tells the story","Data Starter Pack: registration numbers as % of social following"],
+    benchmark: "Sports average social referral share: 2–5% (SimilarWeb Sports Industry Benchmark 2024). F1.com estimated social referral: 8–12%. If formulae.com's social referral is below 2%, the gap is confirmed as larger than the sports average. If it is above 5%, the story changes.",
+    quality: "WEAK: 'Formula E has lots of social followers but not many website users.' STRONG: 'SimilarWeb shows formulae.com receives X% of traffic from social referral, compared to the sports industry benchmark of 2–5%. Against a global fanbase of 422M, this implies a social-to-website conversion rate of approximately X% — confirming the conversion gap as the primary strategic challenge.'"
+  },
+  gap_platform: {
+    title: "Social media is not driving meaningful web traffic",
+    sub: "Platform referral diagnosis",
+    needs: ["SimilarWeb traffic source breakdown showing social referral %","Comparison between social follower count and social referral volume","Platform-specific referral split (which social drives most)"],
+    tools: ["SimilarWeb: 'Traffic Sources' tab — screenshot showing the % breakdown. If social is below 5% of total traffic, that's your finding","SimilarWeb: compare referral % to F1 and MotoGP as benchmarks","Google Analytics equivalent (if Data Pack includes it): top referral sources by volume"],
+    benchmark: "Industry average social referral for sports properties: 2–5%. TikTok drives the lowest external click-through of any major platform at 0.5–1.5% of followers. Instagram link-in-bio: 1–3% click-through. If social is formula E's lowest referral source, the conversion gap has a platform cause.",
+    quality: "WEAK: 'Social media doesn't drive enough traffic.' STRONG: 'SimilarWeb data shows social referral accounts for X% of formulae.com traffic — below the 2–5% sports industry average. TikTok, Formula E's fastest-growing platform (+37% S11), has an inherent click-through ceiling of 0.5–1.5% due to the platform's closed-link architecture, explaining why follower growth has not translated to web traffic growth.'"
+  },
+  gap_site: {
+    title: "The website itself creates friction",
+    sub: "On-site UX diagnosis",
+    needs: ["Manual UX walkthrough with click count and friction points","PageSpeed Insights mobile performance score","Screenshot of the registration flow with annotations"],
+    tools: ["Google PageSpeed Insights: run formulae.com on mobile — screenshot performance score and specific issues flagged","Manual walkthrough: document every step from formulae.com homepage to completed registration. Count clicks, note unclear UI, record time taken","Screenshot the registration form: count fields, note any that could be simplified"],
+    benchmark: "Mobile conversion benchmark: every additional form field reduces completion by ~10% (Baymard Institute). Google recommends mobile load time under 2.5 seconds for good conversion. Sports sites with 4+ click registration flows see 60%+ abandonment before completion (Baymard 2024).",
+    quality: "WEAK: 'The website is hard to use.' STRONG: 'Manual UX audit shows the formulae.com registration journey requires X clicks from the homepage, X form fields, and X seconds average load time on mobile (Google PageSpeed: X/100). Against Baymard Institute benchmarks showing ~10% drop-off per form field, the current flow could be losing up to X% of motivated registrants before completion.'"
+  },
+  gap_mobile: {
+    title: "Mobile performance is a blocker",
+    sub: "Technical friction diagnosis",
+    needs: ["PageSpeed Insights mobile score and Core Web Vitals","Comparison to Google's 'good' threshold","Connection to TikTok audience (mobile-first users)"],
+    tools: ["Google PageSpeed Insights: run formulae.com — screenshot the mobile score specifically. Note LCP (load time), CLS (layout shift), FID (interactivity)","Run the same test on formula1.com as a benchmark comparison","Document your own experience of registering on mobile — time it, screenshot where you hesitated"],
+    benchmark: "Google's 'Good' mobile threshold: LCP under 2.5s, CLS under 0.1, FID under 100ms. Sites scoring below 50/100 on mobile PageSpeed see 53% higher bounce rates on mobile vs desktop (Google 2024). TikTok's audience is 98% mobile — a poor mobile experience directly blocks the highest-growth audience segment.",
+    quality: "WEAK: 'The mobile site could be improved.' STRONG: 'Google PageSpeed Insights scores formulae.com at X/100 on mobile (vs formula1.com at X/100). The LCP of Xs exceeds Google's 2.5s 'Good' threshold, correlating with a 53% higher bounce rate benchmark. Given TikTok's 98% mobile user base and Formula E's +37% TikTok growth in S11, mobile friction directly undermines the highest-growth conversion pathway.'"
+  },
+  blocker_habit: {
+    title: "Discovery Fans have no habit loop to go beyond social",
+    sub: "Discovery Fan blocker diagnosis",
+    needs: ["Apify quotes showing fans describing satisfied consumption on social","SimilarWeb showing near-zero social referral from TikTok","SparkToro showing Discovery Fans don't visit formulae.com in top sites"],
+    tools: ["Apify: search Reddit for phrases like 'just watch clips', 'never go to the site', 'TikTok is enough' — screenshot the quotes","SimilarWeb: referral traffic breakdown — if TikTok sends nearly zero referral traffic despite being the 2nd largest platform, the habit loop is broken","SparkToro: does formulae.com appear in the top websites visited by the Discovery Fan audience? If not — confirmed absence of habit"],
+    benchmark: "Entertainment habit loop research (Spotify/Netflix internal, cited in Salesforce Connected Fan): users with no in-product habit formed within the first 7 days have 85% churn rate. Formula E's between-race content gap is 2–4 weeks — well beyond the habit formation window.",
+    quality: "WEAK: 'Discovery Fans don't feel a need to visit the website.' STRONG: 'Apify analysis of 150 r/FormulaE posts identified 23 comments matching the pattern of satisfied social consumption — phrases including 'the clips are enough', 'I don't need to go to the website', and 'TikTok gives me everything I need'. SimilarWeb confirms this behaviourally: despite TikTok being Formula E's 2nd largest platform, social referral to formulae.com represents only X% of traffic. The content is satisfying the need — no incompleteness is created.'"
+  },
+  blocker_frame: {
+    title: "EV Converts are put off by the motorsport framing",
+    sub: "EV Convert blocker diagnosis",
+    needs: ["Apify quotes showing EV audience dismissing motorsport","SparkToro showing EV audience visits tech/sustainability sites not motorsport sites","SEMrush showing EV audience searches for tech terms not racing terms"],
+    tools: ["Apify: scrape EV-adjacent subreddits (r/electricvehicles, r/teslamotors) for mentions of Formula E — screenshot comments that show dismissal of the racing frame","SparkToro: compare EV Convert audience top sites vs Discovery Fan — does the EV audience avoid motorsport media sites?","SEMrush: search intent for 'Formula E technology', 'electric racing innovation' vs 'Formula E race results' — which queries are under-captured?"],
+    benchmark: "Potentia Insight Formula E fan survey: 39% of fans rate FE as innovative vs 21% for F1 — suggesting the innovation identity exists. But the same research shows non-fans who follow EVs do not associate Formula E with the tech narrative (SparkToro evidence needed to confirm). Identity-framed content increases conversion by 2.3× vs product-framed content (Salesforce State of Marketing 2024).",
+    quality: "WEAK: 'EV fans don't like racing.' STRONG: 'Apify analysis of r/electricvehicles surfaced 12 Formula E mentions in 500 posts — 8 of which framed it as 'the racing thing' or 'for motorsport people, not for us'. SparkToro confirms: the EV Convert audience segment visits Electrek.co and InsideEVs.com at 3.1× the industry average but does not show formulae.com in its top-20 visited sites. The audience exists and is adjacent — the framing is the barrier, not the interest.'"
+  },
+  blocker_lapsed: {
+    title: "Lapsed Engagers have no re-entry hook",
+    sub: "Lapsed Engager blocker diagnosis",
+    needs: ["Apify quotes showing fans who were active and stopped","SimilarWeb showing return visit rate is low","SparkToro showing lapsed audience still has FE-adjacent interests"],
+    tools: ["Apify: Reddit search for 'used to follow Formula E', 'I stopped watching', 'lost interest' — screenshot quotes showing the moment of disengagement","SimilarWeb: 'Returning visitors' metric for formulae.com — a low returning visitor rate confirms lapsed engagement is not being recovered","SparkToro: lapsed audience still follows motorsport content — confirming interest exists but re-entry hasn't been created"],
+    benchmark: "Re-engagement email open rate benchmark: 5–10% (Klaviyo Sports 2024). With a personalised new season hook, this rises to 15–20%. The existence of a 'lapsed' cohort is confirmed by the between-race traffic drop benchmark: sports sites see 60–70% traffic decline between event weeks — creating a natural lapse window.",
+    quality: "WEAK: 'Some fans lost interest over time.' STRONG: 'Apify analysis identified 18 Reddit posts from users self-describing as former Formula E followers, citing season gaps, driver changes, and lack of between-race engagement as reasons for lapsing. SimilarWeb data shows formulae.com returning visitor rate of X% — below the sports industry average of X%, confirming lapsed users are not being re-recruited. However, SparkToro shows this audience continues to engage with broader motorsport content, confirming residual interest exists and a targeted re-entry hook could reactivate this cohort.'"
+  },
+  blocker_site: {
+    title: "On-site UX is causing drop-off",
+    sub: "Technical blocker diagnosis",
+    needs: ["Manual UX walkthrough documenting friction points","PageSpeed mobile score","Specific pages where registration flow breaks down"],
+    tools: ["Google PageSpeed Insights: run every page in the registration flow — homepage, registration page, confirmation page","Manual audit: go through registration as a new user, screenshot every step, time each step, note every confusing element","Check formulae.com on mobile vs desktop — many frictions are mobile-specific"],
+    benchmark: "Baymard Institute: average e-commerce checkout abandonment 69.8%. Registration forms with 4+ fields see 60%+ abandonment. Each additional field = ~10% drop-off. Load time above 3s = 53% higher bounce. Even if Formula E's traffic from social were healthy, poor UX at the registration stage could be eliminating the majority of conversion-ready visitors.",
+    quality: "WEAK: 'The website registration process has too many steps.' STRONG: 'Manual UX audit documented X steps, X form fields, and X-second average load time in the formulae.com registration flow on mobile. Against Baymard Institute benchmarks (60%+ abandonment for 4+ field forms; 53% higher bounce for 3s+ load), the current flow could be eliminating X% of conversion-ready visitors before registration is completed. PageSpeed mobile score of X/100 confirms the technical barrier.'"
+  },
+  strat_competition: {
+    title: "Competition mechanics convert better than generic CTAs",
+    sub: "Mechanic choice justification",
+    needs: ["Industry benchmark showing competition conversion rate","Comparison to generic CTA baseline","Apify evidence that FE's Discovery audience responds to FOMO/prize language"],
+    tools: ["Benchmark Reference Sheet: competition mechanics convert at 25–40% vs generic social CTA at 1–3%","Apify: search TikTok/Instagram comments for prize, competition, win, exclusive language — shows audience receptiveness","SparkToro: does the Discovery Fan audience follow brand competition accounts or engage with giveaway content?"],
+    benchmark: "Klaviyo Sports Benchmark 2024: competition entry gates convert at 25–40% of participants who reach the entry page. Generic social CTA conversion: 1–3% (SimilarWeb Sports). This represents a 10–15× difference in conversion efficiency. The London E-Prix prize is a high-value incentive that could drive above-benchmark conversion.",
+    quality: "WEAK: 'We will run a competition to drive registrations.' STRONG: 'The benchmark data shows competition entry mechanics convert at 25–40% vs 1–3% for generic social CTAs — a 10–15× efficiency advantage (Klaviyo Sports 2024). Apify analysis of Formula E's TikTok comments shows X% of engagement language includes prize, exclusive, and win terminology, confirming audience receptiveness to this mechanic. We target a conservative 8% conversion rate in the first 4-week test cycle, reflecting lower brand salience vs established sports properties.'"
+  },
+  strat_gated: {
+    title: "Gated content converts high-intent fans",
+    sub: "Mechanic choice for EV Convert / High-Intent segments",
+    needs: ["Benchmark showing gated content conversion rate","SEMrush evidence that your segment searches for this content type","SparkToro showing audience visits content-heavy sites"],
+    tools: ["Benchmark Reference Sheet: gated content converts at 15–25% among high-intent visitors","SEMrush: search volume for 'Formula E technology', 'GEN3 Evo specs', 'electric racing innovation' — confirms content demand exists","SparkToro: does the EV Convert audience visit long-form tech content sites (Wired, Electrek)?"],
+    benchmark: "HubSpot Content Marketing Benchmark 2024: gated technical content (white papers, technical reports) converts at 15–25% of landing page visitors among high-intent B2C audiences. For sustainability/tech audiences specifically, content gates outperform competition mechanics — the incentive is learning, not winning.",
+    quality: "WEAK: 'We will create a white paper about Formula E technology.' STRONG: 'SEMrush shows X monthly searches for Formula E technology-related terms, with minimal organic capture by formulae.com — a content gap. SparkToro confirms the EV Convert audience visits Electrek.co and InsideEVs.com at 3.1× the industry average, indicating strong appetite for technical content. HubSpot benchmarks show gated technical content converts at 15–25% among high-intent visitors — making this mechanic more appropriate than a competition gate for this segment's identity-driven motivation.'"
+  },
+  strat_email: {
+    title: "Post-registration email drives loyalty",
+    sub: "CRM journey justification",
+    needs: ["Email open rate benchmarks by segment","Sports CRM benchmark showing welcome sequence effectiveness","Benchmark for day-1 vs day-30 engagement decline"],
+    tools: ["Benchmark Reference Sheet: welcome email open rate 50–60%, day-30 retention 60–70%","Brevo/Mailchimp: build the journey and show the logic — screenshot the automation flow","HubSpot lifecycle stages: document the contact journey per segment"],
+    benchmark: "Klaviyo Sports 2024: Day-1 post-registration email open rate: 45–55%. Day-7 retention: 25–35%. Day-30 retention: 10–20% (without active engagement mechanics). Sports properties with personalised lifecycle sequences see 2–3× higher day-30 retention than generic broadcast emails (Salesforce Connected Fan 2024). The Predictor game, introduced at day 3–7, is the highest-impact loyalty mechanic in sports CRM.",
+    quality: "WEAK: 'We will send welcome emails to registered users.' STRONG: 'Klaviyo Sports benchmarks show day-1 post-registration emails achieve 45–55% open rate — the highest engagement window in the user lifecycle. Our 3-stage welcome sequence (day 1: welcome + race content; day 3: Predictor game introduction; day 7: upcoming race alert) is designed to activate the app before the engagement window closes. Salesforce Connected Fan research shows personalised lifecycle sequences produce 2–3× higher day-30 retention — our primary loyalty KPI.'"
+  },
+  strat_app: {
+    title: "App retention can be improved with day-1 activation",
+    sub: "App strategy justification",
+    needs: ["Day-1 and day-30 app retention benchmarks","Specific day-1 mechanic that drives activation","Connection between notification opt-in and retention"],
+    tools: ["Benchmark Reference Sheet: day-1 active: 40–55%, day-30: 10–20%","AppsFlyer Sports 2024 data on sports app retention curves","Manual audit of the Formula E app onboarding flow — how many steps to first value?"],
+    benchmark: "AppsFlyer Sports App Benchmark 2024: install to day-1 active rate: 40–55%. Day-7 retention: 25–35%. Day-30 retention: 10–20%. Push notification opt-in: 40–60% for sports apps (race alerts are a strong incentive). Sports apps that deliver 'first value' within 3 minutes of install see day-30 retention 2× higher than those that don't. The Formula E app's race alert feature is the natural first-value mechanic.",
+    quality: "WEAK: 'We will improve app engagement.' STRONG: 'AppsFlyer Sports benchmarks show install-to-day-1 active rate of 40–55%, with day-30 retention collapsing to 10–20% without active engagement mechanics. Our app activation sequence delivers 'first value' (personalised race alert + Predictor game access) within the first 3 minutes of install — the window identified by AppsFlyer as critical for day-30 retention. We target a day-30 retention rate of 25%+ vs the 10–20% industry average, representing a material improvement achievable through faster time-to-value.'"
+  },
+  strat_segment_diff: {
+    title: "Different segments need different tactics",
+    sub: "The central segmentation argument",
+    needs: ["Different benchmark conversion rates per mechanic","Different Apify language per segment","SparkToro showing different habitats"],
+    tools: ["Benchmark Reference Sheet: competition mechanics (Discovery) vs gated content (EV Convert) — different conversion rates for different incentive types","Apify: language clustering showing different fan voices","SparkToro: different platform habitats requiring different reach tactics"],
+    benchmark: "Salesforce State of Connected Fan 2024: personalised segment-level communications produce 3.2× higher conversion than broadcast campaigns. One-size-fits-all approaches in sports CRM produce 1–3% conversion (industry average). Segment-differentiated approaches achieve 8–25% depending on mechanic fit. The argument is mathematical: a competition mechanic at 25–40% conversion applied only to Discovery Fans outperforms a generic campaign at 1–3% applied to everyone.",
+    quality: "WEAK: 'Different fans need different approaches.' STRONG: 'Salesforce research shows personalised segment-level conversion produces 3.2× higher rates than broadcast campaigns. Our three segments require mechanically distinct approaches: Discovery Fans (competition entry, 8–12% target), Lapsed Engagers (new season hook email, 45%+ open rate target), and EV Converts (gated tech content, 15–25% target). Applying the competition mechanic to EV Converts — who are identity-motivated, not prize-motivated — would waste conversion budget on the wrong incentive. Segmentation is not a creative choice; it is an efficiency argument.'"
+  },
+  kpi_baseline: {
+    title: "Our baseline conversion rate is below industry average",
+    sub: "KPI baseline justification",
+    needs: ["SimilarWeb social referral % for formulae.com","Industry benchmark for sports social-to-web conversion","Data Starter Pack actual conversion rate (when available)"],
+    tools: ["SimilarWeb: social referral % as a proxy for social-to-web conversion","Benchmark Reference Sheet: sports industry average 2–5%","Data Starter Pack: actual registration rate once received — update all projections"],
+    benchmark: "Sports industry social referral benchmark: 2–5% of total traffic (SimilarWeb 2024). F1 estimated: 8–12%. TikTok-to-web click-through inherent ceiling: 0.5–1.5%. Until the Data Pack arrives, use the industry average as your stated baseline and flag it explicitly: 'In the absence of client data, we use the sports industry average of 2–5% as our baseline. This will be updated when the Data Starter Pack is received.'",
+    quality: "WEAK: 'We don't know the current conversion rate.' STRONG: 'SimilarWeb shows social referral accounts for X% of formulae.com traffic. Against a fanbase of 422M and Formula E's stated social following, this implies a social-to-website conversion rate significantly below the sports industry average of 2–5% (SimilarWeb Sports Benchmark 2024). We use 1–3% as our working baseline, consistent with the TikTok platform-level click-through ceiling, pending confirmation from the Data Starter Pack.'"
+  },
+  kpi_target: {
+    title: "Our target conversion rate is realistic",
+    sub: "KPI target justification",
+    needs: ["Comparable benchmark for the mechanic you're using","Rationale for why you're being conservative or aggressive","Comparable case study if available"],
+    tools: ["Benchmark Reference Sheet: mechanic-specific conversion rates","Comparable case studies: Red Bull Predictor, F1 Fantasy, NBA All-Star Vote — any competition mechanic with documented conversion","Data Starter Pack: once received, set target as % improvement on actual baseline"],
+    benchmark: "The target should sit between the generic CTA baseline (1–3%) and the mechanic-specific benchmark (25–40% for competitions). Being conservative is credible — state why: 'We target 8% rather than the 25–40% benchmark because Formula E's brand salience among 18–24 TikTok users is lower than established sports properties, and this is a first-test window with no existing conversion infrastructure.' That reasoning shows analytical maturity.",
+    quality: "WEAK: 'We aim to increase registrations by 50%.' STRONG: 'We target a 4-week competition mechanic conversion rate of 8–12% — conservative relative to the Klaviyo benchmark of 25–40%, reflecting Formula E's lower current brand salience among the 18–24 TikTok audience. If the test achieves 8%+, we scale. If it falls below 5% by week 2, we pivot to a gated content drop (15–25% benchmark for high-intent audiences). The range acknowledges uncertainty while grounding both the target and the pivot in published benchmarks.'"
+  },
+  kpi_email: {
+    title: "Our email open rate target is achievable",
+    sub: "CRM KPI justification",
+    needs: ["Welcome email benchmark for sports properties","Rationale for why your sequence outperforms the average","Segment-specific rationale"],
+    tools: ["Benchmark Reference Sheet: welcome email open rate 50–60%, sports avg 28–35%","Mailchimp / Brevo: industry benchmarks built into their own dashboard","Your CRM journey design — show why the content is relevant to the segment"],
+    benchmark: "Mailchimp 2024 benchmarks: sports industry average open rate 28–35%. Welcome email (day-1 post-registration): 50–60%. Top quartile: 65%+. The welcome email consistently outperforms ongoing emails because recency and expectation are at their highest — the user just completed an action and is primed to engage. Personalised subject lines (including the segment-specific hook) add 26% open rate uplift (Campaign Monitor 2024).",
+    quality: "WEAK: 'Our emails will have good open rates.' STRONG: 'We target a day-1 welcome email open rate of 52% for the Discovery Fan segment — above the sports industry average of 28–35% but below the welcome email benchmark of 50–60% (Mailchimp 2024). This segment has just completed a competition entry and is in a high-engagement window. Subject line: 'You're in — your London E-Prix countdown starts now.' personalised to their competition entry, applying Campaign Monitor's finding that personalised subject lines produce a 26% open rate uplift. If open rate falls below 40%, we A/B test subject line variants.'"
+  }
+};
+
+const TOOL_DATA = {
+  similarweb: {
+    title: "SimilarWeb", sub: "What your outputs prove and how to annotate them",
+    cards: [
+      { col:"blue", label:"Output: Traffic Overview", title:"Proves the conversion gap is real — with numbers", body:"Screenshot: Total Visits, Bounce Rate, Pages/Visit, Avg Session Duration. Annotate with: 'X% bounce rate vs Y% sports average (SimilarWeb benchmark). This means X in Y visitors leave without converting.' This slide proves your North Star claim is quantified, not just observed.", source:"Use: Funnel Audit slide, opening the Gap Diagnosis section" },
+      { col:"blue", label:"Output: Traffic Sources", title:"Proves social is not driving web traffic", body:"Screenshot: the pie chart or bar showing Direct / Organic / Social / Referral split. Annotate: 'Social referral = X% of traffic despite X million social followers. Sports industry average: 2–5%. Formula E's social-to-web conversion gap is confirmed.' This is your single most important chart.", source:"Use: Funnel Audit — the conversion gap evidence slide" },
+      { col:"blue", label:"Output: Competitor Comparison", title:"Proves Formula E's position relative to the market", body:"Screenshot: formulae.com vs formula1.com vs motogp.com side by side. Annotate: traffic volume ratio, bounce rate comparison, social referral % comparison. If FE has higher bounce or lower social referral than competitors, that's a specific finding, not a generic observation.", source:"Use: Market Context section, establishing the competitive benchmark" },
+      { col:"blue", label:"Output: Top Pages", title:"Proves what fans actually do on the site", body:"Screenshot: top pages list. If registration or account pages are not in the top 10 — that IS the finding. 'Fans visit [race results / driver pages] but not the registration or app download pages, confirming they are not arriving with conversion intent.' Annotate each top page with what it tells you about user intent.", source:"Use: Funnel Audit — on-site behaviour evidence" },
+    ]
+  },
+  sparktoro: {
+    title: "SparkToro", sub: "What your audience profile outputs prove",
+    cards: [
+      { col:"green", label:"Output: Top Websites Visited", title:"Proves where your audience goes instead of formulae.com", body:"Screenshot: the list of top 10 websites. For each segment, annotate: 'Discovery Fan over-indexes on [site] — a short-form entertainment platform.' 'EV Convert over-indexes on [site] — a clean-tech publication.' If formulae.com does not appear — that IS the blocker evidence. Run all three searches and compare lists side by side.", source:"Use: Gap Diagnosis — audience habitat and blocker evidence" },
+      { col:"green", label:"Output: Podcasts & YouTube Channels", title:"Proves what content format this audience trusts", body:"Screenshot: podcast and YouTube lists. Annotate: 'Discovery Fan audience consumes [content type] — suggesting short-form video is their primary format.' 'EV Convert audience listens to [tech podcast] — confirming content appetite is information-driven, not entertainment-driven.' This informs your content tactic choice.", source:"Use: Conversion Strategy — content format justification" },
+      { col:"green", label:"Output: Social Accounts Followed", title:"Proves who has influence over this audience", body:"Screenshot: social account list. Annotate: 'Discovery Fan audience follows [account] — a potential retargeting or partnership opportunity.' Look for: do they follow F1 accounts? EV brand accounts? Other motorsport? The overlap tells you what adjacent audiences Formula E could reach through partnerships.", source:"Use: Conversion Strategy — channel and partnership evidence" },
+      { col:"green", label:"Cross-segment comparison", title:"Proves segments are genuinely distinct", body:"Put three SparkToro screenshots side by side — one per segment. Highlight: sites that appear in one list but not others. Annotate: 'EV Convert audience visits Electrek.co at 3.1× the industry average. This site does not appear in the Discovery Fan top-20.' Three tool outputs showing different habits = segment validity confirmed.", source:"Use: Segmented Audience Map — distinctiveness evidence" },
+    ]
+  },
+  semrush: {
+    title: "SEMrush / Google Keyword Planner", sub: "What search data proves about audience intent",
+    cards: [
+      { col:"gold", label:"Output: Keyword Gap Analysis", title:"Proves what fans want that Formula E isn't capturing", body:"Screenshot: keywords your audience searches but formulae.com doesn't rank for. Annotate: 'Formula E technology EV — X monthly searches, formulae.com not in top 10 results. This is the EV Convert's entry point — currently uncaptured.' Group keywords by segment intent: race results (Discovery/High-Intent), technology (EV Convert), driver content (Lapsed).", source:"Use: Gap Diagnosis — organic search opportunity evidence" },
+      { col:"gold", label:"Output: Search Volume by Term", title:"Proves that different segments search for different things", body:"Screenshot: keyword list with volumes. Group and annotate: 'Discovery Fan terms: Formula E highlights (X/month), Formula E race (X/month). EV Convert terms: Formula E technology (X/month), electric racing innovation (X/month). The vocabulary divergence confirms segment distinctiveness.' Different search intent = different conversion content needed.", source:"Use: Segmented Audience Map — search intent differentiation" },
+      { col:"gold", label:"Output: Organic vs Paid Gap", title:"Proves where Formula E is and isn't showing up", body:"Screenshot: Formula E's organic positions vs paid positions for key terms. Annotate: 'Formula E has X% organic capture for [term] but runs no paid search for [EV Convert terms] — a missed conversion opportunity in the highest-intent audience.' If FE is paying for broad terms but not segment-specific terms, that's a strategic observation.", source:"Use: Conversion Strategy — search-driven tactic justification" },
+    ]
+  },
+  apify: {
+    title: "Apify / Export Comments", sub: "What fan sentiment data proves",
+    cards: [
+      { col:"orange", label:"Output: Reddit comment scrape", title:"Proves blockers exist in fans' own words", body:"Screenshot: 3–5 real fan quotes per segment. Annotate each: 'Discovery Fan: \"I just watch the TikToks, never felt like going to the website\" — confirms no habit loop.' 'Lapsed: \"I used to be obsessed but Season 10 just felt repetitive\" — confirms lapse moment.' Real quotes beat statistics in a C-suite pitch. One genuine fan voice is more persuasive than any benchmark.", source:"Use: Gap Diagnosis — the most powerful slide in your deck" },
+      { col:"orange", label:"Output: Sentiment clustering", title:"Proves what fans love vs what frustrates them", body:"Screenshot: comment categorisation (positive / negative / neutral). Annotate: 'X% of comments mentioning the website reference difficulty registering or finding content. X% of positive comments reference race excitement specifically — suggesting emotional high points are the conversion window.' If you use Export Comments, sort by lowest-rated comments for the richest friction evidence.", source:"Use: Funnel Audit — sentiment and friction evidence" },
+      { col:"orange", label:"Output: Language pattern analysis", title:"Proves segment distinctiveness through vocabulary", body:"Compare vocabulary across comment sets. Discovery Fan comments use: [list high-frequency words]. EV Convert comments use: [different word list]. Annotate: 'The word technology appears 4.2× more frequently in EV-adjacent threads than racing-focused threads — confirming the framing mismatch.' You don't need NLP software — a manual tally of 20 keyword occurrences across 200 comments is enough.", source:"Use: Segmented Audience Map — language-based segment evidence" },
+    ]
+  },
+  pagespeed: {
+    title: "Google PageSpeed Insights + Manual UX Walkthrough", sub: "What technical and experiential evidence proves",
+    cards: [
+      { col:"purple", label:"Output: Mobile Performance Score", title:"Proves technical friction on the primary access device", body:"Screenshot: the PageSpeed mobile score dashboard. Annotate: 'Mobile score: X/100. LCP (load time): Xs — above Google's 2.5s Good threshold. This correlates with X% higher bounce rate on mobile (Google 2024).' Run formula1.com on the same test and include both — the comparison is more powerful than the absolute score. TikTok's audience is 98% mobile.", source:"Use: Funnel Audit — technical friction evidence" },
+      { col:"purple", label:"Output: Core Web Vitals breakdown", title:"Proves specific technical issues causing drop-off", body:"Screenshot: the three Core Web Vitals (LCP, CLS, FID) with red/amber/green indicators. Annotate each: 'LCP of Xs means the page takes Xs to show main content on mobile — X% of users leave before X seconds (Google 2024). CLS of X means the page layout shifts X times during load — disorienting on mobile.' Specific issues are more credible than a general score.", source:"Use: Funnel Audit — on-site technical evidence" },
+      { col:"purple", label:"Output: Manual UX walkthrough", title:"Proves the human experience of converting", body:"Screenshot: every step of the registration journey. Annotate: 'Step 1: Homepage. No registration CTA visible above the fold on mobile. Step 2: Navigation menu — registration buried under Account → Create Account. Step 3: Registration form — X fields required.' Count total clicks, total form fields, total time. One annotated walkthrough screenshot per step, showing what a motivated new fan encounters.", source:"Use: Funnel Audit — UX friction evidence" },
+    ]
+  },
+  brevo: {
+    title: "Brevo / Mailchimp", sub: "What your CRM journey design proves",
+    cards: [
+      { col:"teal", label:"Output: Automation flow screenshot", title:"Proves the post-registration journey is designed and differentiated", body:"Screenshot: the visual automation flow showing branching logic per segment. Annotate: 'Segment tag applied at registration → Discovery Fan path: Day 1 welcome + Predictor game → Day 3 race alert → Day 7 app download prompt. EV Convert path: Day 1 tech content → Day 3 GEN3 Evo explainer → Day 7 race-to-road innovation piece.' The branching IS the evidence of segment-level thinking.", source:"Use: Post-Registration Journey and Conversion Strategy slides" },
+      { col:"teal", label:"Output: Email template previews", title:"Proves the content is segment-differentiated in tone and message", body:"Screenshot: the Day-1 email for each segment side by side. Show that subject lines, hero images, and CTAs differ per segment. Discovery Fan: 'You're in — your race countdown starts now.' EV Convert: 'Welcome — the technology in your car started here.' Annotate: 'Tone, content, and CTA differ per segment, reflecting the distinct triggers identified in the tool audit phase.'", source:"Use: Post-Registration Journey slide — segment differentiation evidence" },
+      { col:"teal", label:"Output: Lifecycle stage mapping", title:"Proves the loyalty loop is designed beyond the first touchpoint", body:"Screenshot: the full lifecycle from registration through to loyal user (website return, app active, email engaged). Map it to HubSpot or Brevo lifecycle stages: Subscriber → Engaged → App Active → Loyal. Annotate: 'A loyal user is defined as someone engaging with all three ecosystem components: website, app, and CRM. This journey is designed to activate all three within 30 days of registration.'", source:"Use: Conversion Strategy — the full lifecycle evidence" },
+    ]
+  }
+};
+
+// Benchmarks per KPI/mechanic combo
+const HYP_DATA = {
+  segments: {
+    discovery: { name: "Discovery Fan", age: "18–24", platform_hint: "TikTok/Instagram", intent: "Low" },
+    lapsed:    { name: "Lapsed Engager", age: "25–35", platform_hint: "X / Reddit", intent: "Medium" },
+    ev:        { name: "EV Convert", age: "22–40", platform_hint: "Instagram / LinkedIn", intent: "Medium-High" },
+    highintent:{ name: "High-Intent Fan", age: "25–40", platform_hint: "X / Reddit", intent: "High" },
+    custom:    { name: "Custom Segment", age: "define yours", platform_hint: "your platform", intent: "define yours" },
+  },
+  platforms: {
+    tiktok:    { name: "TikTok bio link → formulae.com", tracking: "UTM-tagged bio link tracked in Google Analytics" },
+    instagram: { name: "Instagram link in bio / swipe-up", tracking: "UTM-tagged Instagram link tracked via campaign parameters" },
+    x:         { name: "X / Twitter pinned thread with link", tracking: "UTM-tagged link in pinned tweet tracked in Google Analytics" },
+    reddit:    { name: "Reddit post with formulae.com link", tracking: "UTM-tagged link tracked in Google Analytics referral data" },
+    email:     { name: "CRM email sequence", tracking: "Brevo/Mailchimp open rate, CTR, and conversion tag on landing page" },
+    app:       { name: "App store → in-app registration flow", tracking: "AppsFlyer install-to-registration conversion tracked in-app" },
+    seo:       { name: "Organic search → landing page", tracking: "Google Analytics organic channel + conversion goal tracking" },
+  },
+  mechanics: {
+    competition:   { name: "Competition entry (registration required)", baseline: "1–3%", target: "8–15%", source: "Klaviyo Sports Benchmark 2024: competition mechanics convert at 25–40%; we target 8–15% as conservative first-test", mechanic: "FOMO + reward" },
+    gated:         { name: "Gated content download (registration required)", baseline: "1–3%", target: "15–25%", source: "HubSpot Content Marketing 2024: gated technical content converts 15–25% among high-intent visitors", mechanic: "Value exchange" },
+    exclusive:     { name: "Exclusive early access (registration required)", baseline: "1–3%", target: "10–18%", source: "Salesforce Connected Fan: exclusivity mechanics convert 10–20% among engaged sports fans", mechanic: "Insider identity" },
+    reengagement:  { name: "Re-engagement email with new season hook", baseline: "28–35%", target: "45–52%", source: "Klaviyo Sports: personalised re-engagement email open rate 15–20% above sports average of 28–35%", mechanic: "Nostalgia + novelty" },
+    innovation:    { name: "Innovation-framed content (tech-first)", baseline: "1–3%", target: "12–20%", source: "Salesforce: identity-aligned content 2.3× higher conversion than product-framed content", mechanic: "Identity alignment" },
+    predictor:     { name: "Predictor game (registration required to play)", baseline: "1–3%", target: "10–20%", source: "AppsFlyer Sports: gamification mechanics produce +35–60% DAU; conservative first-test target applied", mechanic: "Gamification" },
+    appdownload:   { name: "App download prompt with race alert incentive", baseline: "40–55%", target: "55–65%", source: "AppsFlyer Sports 2024: sports apps with race alert incentive see 15–20% higher install-to-active rate", mechanic: "Utility + immediacy" },
+  },
+  kpis: {
+    registration: { name: "formulae.com registration rate", unit: "% of bio link clicks", window: "4-week race cycle", pass: "≥ target %", fail: "< 50% of target by week 2" },
+    appdownload:  { name: "App install-to-active rate (day 1)", unit: "% of installs who open app day 1", window: "4-week period", pass: "≥ 55% day-1 active", fail: "< 40% day-1 active by week 2" },
+    emailopen:    { name: "Welcome email open rate", unit: "% of delivered emails opened", window: "48h after send", pass: "≥ target %", fail: "< 40% open rate" },
+    emailctr:     { name: "Email click-through rate", unit: "% of opened emails that click CTA", window: "72h after send", pass: "≥ 6%", fail: "< 3% CTR" },
+    day30:        { name: "Day-30 app retention", unit: "% of installs still active at day 30", window: "30 days post-install", pass: "≥ 25%", fail: "< 15% by day 14" },
+    crmopen:      { name: "Re-engagement email open rate", unit: "% of lapsed cohort who open", window: "7 days after send", pass: "≥ 45% open", fail: "< 30% open → A/B test subject line" },
+  }
+};
+
+// ══════════════════════════════════════════════════════
+// FUNCTIONS
+// ══════════════════════════════════════════════════════
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${tab}')"]`).classList.add('active');
+  document.getElementById(`panel-${tab}`).classList.add('active');
+}
+
+function checkAssumption() {
+  const key = document.getElementById('assumption-select').value;
+  const out = document.getElementById('assumption-output');
+  if (!key) { out.classList.remove('show'); return; }
+
+  const d = ASSUMPTIONS[key];
+  document.getElementById('ao-title').textContent = d.title;
+  document.getElementById('ao-sub').textContent = d.sub;
+
+  let needsHtml = '', toolsHtml = '';
+  d.needs.forEach((n, i) => {
+    needsHtml += `<div class="evidence-card orange" style="margin-bottom:8px;">
+      <div class="ev-body">${n}</div>
+    </div>`;
+    toolsHtml += `<div class="evidence-card blue" style="margin-bottom:8px;">
+      <div class="ev-body">${d.tools[i]||''}</div>
+    </div>`;
+  });
+  document.getElementById('ao-needs').innerHTML = needsHtml;
+  document.getElementById('ao-tools').innerHTML = toolsHtml;
+  document.getElementById('ao-benchmark').innerHTML = d.benchmark;
+  document.getElementById('ao-quality').innerHTML = d.quality;
+  out.classList.add('show');
+}
+
+function selectTool(tool) {
+  document.querySelectorAll('.tool-card').forEach(c => c.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+
+  const d = TOOL_DATA[tool];
+  const out = document.getElementById('tool-output');
+  document.getElementById('to-title').textContent = d.title;
+  document.getElementById('to-sub').textContent = d.sub;
+
+  const colors = ['blue','green','gold','orange','purple','teal'];
+  let html = '';
+  d.cards.forEach((c, i) => {
+    const col = c.col || colors[i % colors.length];
+    html += `<div class="evidence-card ${col}" style="margin-bottom:10px;">
+      <div class="ev-label ${col}">${c.label}</div>
+      <div class="ev-title">${c.title}</div>
+      <div class="ev-body">${c.body}</div>
+      <div class="ev-source">📍 ${c.source}</div>
+    </div>`;
+  });
+  document.getElementById('to-cards').innerHTML = html;
+  out.classList.add('show');
+}
+
+function buildHypothesis() {
+  const seg     = document.getElementById('h-segment').value;
+  const plat    = document.getElementById('h-platform').value;
+  const mech    = document.getElementById('h-mechanic').value;
+  const kpi     = document.getElementById('h-kpi').value;
+
+  if (!seg || !plat || !mech || !kpi) {
+    alert('Please select all four fields to generate a hypothesis.');
+    return;
+  }
+
+  const S = HYP_DATA.segments[seg];
+  const P = HYP_DATA.platforms[plat];
+  const M = HYP_DATA.mechanics[mech];
+  const K = HYP_DATA.kpis[kpi];
+
+  document.getElementById('ho-sub').textContent = `${S.name} · ${P.name} · ${M.mechanic}`;
+
+  const ifText = `We deploy a <em>${M.name}</em> targeting the <em>${S.name} segment (${S.age} · ${S.platform_hint})</em> via <em>${P.name}</em> over a 4-week test window`;
+  const thenText = `The <em>${K.name}</em> will rise from the industry baseline of <em>${M.baseline}</em> to <em>${M.target}</em> for this segment`;
+  const metricText = `${K.name} (${K.unit}), tracked via ${P.tracking}. Window: ${K.window}`;
+  const passText = `${K.pass} → Scale tactic to full segment`;
+  const failText = `${K.fail} → Pause and diagnose. Review creative, timing, and incentive before re-test`;
+  const pivotText = `If scale fails to maintain target after week 4, pivot mechanic from ${M.mechanic.toLowerCase()} to the next-highest benchmark mechanic for this segment, and re-test with adjusted creative`;
+
+  const rows = [
+    { cls: 'key-if',     label: 'IF',      val: ifText },
+    { cls: 'key-then',   label: 'THEN',    val: thenText },
+    { cls: 'key-metric', label: 'MEASURED',val: metricText },
+    { cls: 'key-pass',   label: 'PASS',    val: passText, extra: 'pass' },
+    { cls: 'key-fail',   label: 'FAIL',    val: failText, extra: 'fail' },
+    { cls: 'key-pivot',  label: 'PIVOT',   val: pivotText },
+  ];
+
+  let html = '';
+  rows.forEach(r => {
+    html += `<div class="hyp-row">
+      <div class="hyp-key ${r.cls}">${r.label}</div>
+      <div class="hyp-val ${r.extra||''}">${r.val}</div>
+    </div>`;
+  });
+  document.getElementById('ho-block').innerHTML = html;
+
+  document.getElementById('ho-evidence').innerHTML =
+    `<strong>Baseline source:</strong> ${M.source}<br><br>` +
+    `<strong>Tracking tool:</strong> ${P.tracking}<br><br>` +
+    `<strong>Segment validation:</strong> SparkToro + Apify evidence must confirm this segment's platform habitat and blocker before the hypothesis is finalised. If tool evidence contradicts your segment assumption, revise the segment first.`;
+
+  document.getElementById('ho-challenge').innerHTML =
+    `<strong>"Where does that ${M.baseline} baseline come from?"</strong> → Cite: ${M.source}<br><br>` +
+    `<strong>"Why ${M.target.split('–')[0]}% and not the full benchmark?"</strong> → "We're conservative because it's our first test cycle and FE's brand salience among this segment is still being established."<br><br>` +
+    `<strong>"What if it fails?"</strong> → State your pivot exactly: pivot the mechanic, A/B test the creative, or re-segment the audience.`;
+
+  document.getElementById('ho-placement').innerHTML =
+    `Place this hypothesis immediately after the tactic description in your <strong>Conversion Strategy</strong> section. Format as a 5-row table (IF / THEN / MEASURED BY / PASS / FAIL). One hypothesis per major tactic. The fail response is the most important row — it shows Tamara's team you've thought beyond the optimistic scenario.`;
+
+  document.getElementById('hypothesis-output').classList.add('show');
+}
+
+function clearHypothesis() {
+  ['h-segment','h-platform','h-mechanic','h-kpi'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('hypothesis-output').classList.remove('show');
+}
+
+function copyHypothesis() {
+  const block = document.getElementById('ho-block');
+  let text = '';
+  block.querySelectorAll('.hyp-row').forEach(row => {
+    const key = row.querySelector('.hyp-key').textContent.trim();
+    const val = row.querySelector('.hyp-val').textContent.trim();
+    text += `${key}: ${val}\n\n`;
+  });
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'COPIED ✓';
+    setTimeout(() => btn.textContent = 'COPY', 2000);
+  });
+}
+</script>
+</body>
+</html>
