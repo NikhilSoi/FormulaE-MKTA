@@ -677,16 +677,31 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
         <span style="font-size:10px;color:var(--gray);margin-left:8px;">Powered by Google Gemini · No setup required</span>
       </div>
 
-      <div class="form-row">
-        <label>What type of finding are you sharing?</label>
-        <select id="ai-type">
-          <option value="tool_output">Tool output (SparkToro, SimilarWeb, Apify, SEMrush, PageSpeed)</option>
-          <option value="fan_quote">Fan quote or Reddit / social comment</option>
-          <option value="segment_desc">My segment description (in my own words)</option>
-          <option value="rough_hypothesis">My rough hypothesis (check if it's grounded)</option>
-          <option value="strategy_claim">A strategy claim I want to make in my pitch</option>
-          <option value="any">Not sure — just interpret this for me</option>
-        </select>
+      <div class="form-grid" style="margin-bottom:18px;">
+        <div class="form-row">
+          <label>What type of finding are you sharing?</label>
+          <select id="ai-type">
+            <option value="tool_output">Tool output (SparkToro, SimilarWeb, Apify, SEMrush, PageSpeed)</option>
+            <option value="fan_quote">Fan quote or Reddit / social comment</option>
+            <option value="segment_desc">My segment description (in my own words)</option>
+            <option value="rough_hypothesis">My rough hypothesis (check if it's grounded)</option>
+            <option value="strategy_claim">A strategy claim I want to make in my pitch</option>
+            <option value="any">Not sure — just interpret this for me</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Where are you in the project right now?</label>
+          <select id="ai-session">
+            <option value="s1">After Session 1 — I have my initial segment hypotheses</option>
+            <option value="s2">After Session 2 — I've run SimilarWeb + SparkToro</option>
+            <option value="s3">After Session 3 — I've run Apify + SEMrush too</option>
+            <option value="s4">After Session 4 — I've completed my funnel audit</option>
+            <option value="s5">After Session 5 — I'm building my conversion strategy</option>
+            <option value="s6">After Session 6 — I have the Data Starter Pack</option>
+            <option value="s7">After Session 7 — I'm building dashboards + CRM journey</option>
+            <option value="s8">After Session 8 — I'm finalising the pitch deck</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-row">
@@ -1112,7 +1127,7 @@ function copyHypothesis() {
   });
 }
 // ══════════════════════════════════════════════════════
-// PANEL 4 — GEMINI AI FINDING INTERPRETER
+// PANEL 4 — GEMINI AI FINDING INTERPRETER (v2 — tutor quality)
 // ══════════════════════════════════════════════════════
 
 const GEMINI_KEY = 'AIzaSyBM1ueIk5lCtu6T2vUk4S3aXyMVg0nJNi4';
@@ -1123,54 +1138,181 @@ function clearAI() {
   document.getElementById('ai-output').classList.remove('show');
 }
 
+// ── Session context descriptions ────────────────────────
+const SESSION_CONTEXT = {
+  s1: {
+    label: "Session 1 — Segment hypotheses formed",
+    done:  "Segment map drafted (3 personas with suspected blockers). Tool accounts set up.",
+    checkpoint: "Session 4 (Wed 9 Apr) — ALL four audit tools must be complete.",
+    should_have: "3 named segments with persona, habitat, and a suspected blocker each. No tool evidence yet — that comes in Sessions 2-3.",
+    rubric_focus: "Currently working on: Segmented Audience Map (10%) and laying groundwork for Funnel Audit (25%).",
+    next_milestone: "Session 2 (Wed 2 Apr): Run SimilarWeb + SparkToro. Every screenshot needs a one-line finding."
+  },
+  s2: {
+    label: "Session 2 — SimilarWeb + SparkToro done",
+    done:  "SimilarWeb audit of formulae.com complete. SparkToro run for core + adjacent + aspirational audiences.",
+    checkpoint: "Session 4 (Wed 9 Apr) — Apify + SEMrush must also be complete by then.",
+    should_have: "SimilarWeb: traffic sources, bounce rate, top pages, competitor comparison. SparkToro: 3 separate audience pulls with top-10 website lists compared side by side.",
+    rubric_focus: "Funnel Audit (25%): SimilarWeb proves the gap. SparkToro proves segment habitat. Both must be annotated with findings, not just screenshotted.",
+    next_milestone: "Session 3 (Mon 7 Apr): Add Apify (Reddit scrape for fan quotes) + SEMrush (search intent). Then Session 4: synthesise into a friction map."
+  },
+  s3: {
+    label: "Session 3 — All 4 audit tools complete",
+    done:  "SimilarWeb, SparkToro, Apify, and SEMrush/Google KP all run. Manual UX walkthrough and PageSpeed done.",
+    checkpoint: "Session 4 (Wed 9 Apr): Synthesise findings into a friction map. Hard checkpoint — teams without all tools will be flagged.",
+    should_have: "Real fan quotes from Apify per segment. Search intent clusters per segment from SEMrush. PageSpeed mobile score for formulae.com. Manual UX walkthrough with click count and friction annotations.",
+    rubric_focus: "Funnel Audit (25%) should now be evidenced. Segmented Audience Map (10%) can be finalised with tool proof. Starting to inform Conversion Strategy (25%).",
+    next_milestone: "Session 4: Friction map workshop. Locate each segment in the funnel. Name ONE specific blocker per segment backed by tool evidence."
+  },
+  s4: {
+    label: "Session 4 — Funnel audit synthesised",
+    done:  "Friction map complete. Each segment located in the funnel with an evidenced blocker. Hard checkpoint passed.",
+    checkpoint: "Data Starter Pack due from Formula E by ~11 April. Update all KPI baselines when it arrives.",
+    should_have: "Friction map: segment × funnel stage × drop-off point × evidenced blocker. One real fan quote per segment. One tool output per blocker claim.",
+    rubric_focus: "Funnel Audit (25%) should be strong now. Moving into Conversion Strategy (25%): platform tactics + Test & Learn hypotheses per segment.",
+    next_milestone: "Session 5 (Mon 14 Apr): Platform tactics table + Test & Learn hypotheses. One hypothesis per tactic — IF/THEN/MEASURED/PASS/FAIL/PIVOT."
+  },
+  s5: {
+    label: "Session 5 — Building conversion strategy",
+    done:  "Platform tactics defined per segment. Writing Test & Learn hypotheses.",
+    checkpoint: "Session 6 (Wed 16 Apr): Data Starter Pack integration — update all projections with real FE data.",
+    should_have: "Platform tactics table: one row per segment showing platform, mechanic, first-party data capture point, and conversion CTA. Test & Learn hypothesis for each tactic with IF/THEN/MEASURED/PASS/FAIL/PIVOT.",
+    rubric_focus: "Conversion Strategy (25%): tactics must be segment-differentiated. Test & Learn (within the 25%): every hypothesis needs a baseline from benchmarks or Data Pack, a specific target, and a concrete fail-pivot.",
+    next_milestone: "Session 6: Receive and integrate Data Starter Pack. Update every KPI projection. If FE data contradicts tool findings — that's a finding too."
+  },
+  s6: {
+    label: "Session 6 — Data Starter Pack integrated",
+    done:  "Formula E's real data received. KPI projections updated. Baselines now use actual FE numbers.",
+    checkpoint: "Sessions 7-8: CRM journey + dashboards. Pitch deck assembly begins.",
+    should_have: "All hypotheses updated with real FE baselines (not just industry averages). Any contradictions between tool findings and FE data documented and explained. KPI impact section drafted.",
+    rubric_focus: "KPI Impact (15%): projections must now be grounded in FE actual data. Data Visualisations (20%): dashboards must draw from Data Pack. Post-Registration Journey (10%): map now informs CRM sequence.",
+    next_milestone: "Session 7 (Mon 21 Apr): Build CRM journey in Brevo/Mailchimp per segment. Session 8 (Wed 23 Apr): Looker Studio dashboards."
+  },
+  s7: {
+    label: "Session 7 — CRM journey + dashboards building",
+    done:  "Post-registration journey mapped per segment in Brevo or Mailchimp. Dashboard build started in Looker Studio or Tableau.",
+    checkpoint: "Session 8 (Wed 23 Apr): Data visualisation lab — both dashboards must be functional.",
+    should_have: "30-day CRM journey per segment with distinct email sequences, app activation prompt, and loyalty mechanic. Two dashboards: current state (from Data Pack) and projected impact (from strategy).",
+    rubric_focus: "Post-Registration Journey (10%): must be segment-differentiated, not one generic journey. Data Visualisations (20%): both dashboards required — current state AND projected. Live Pitch (10%): begin thinking about narrative arc.",
+    next_milestone: "Session 9 (Mon 28 Apr): Peer review + pitch rehearsal. Full 10-minute run through. Know your data. Know your fail responses."
+  },
+  s8: {
+    label: "Session 8 — Finalising pitch deck",
+    done:  "Most content done. Assembling the 15-slide PDF. Rehearsal imminent.",
+    checkpoint: "Pitch: last week of April to Formula E Marketing Directors. 10 min presentation + 5 min Q&A.",
+    should_have: "15 slides covering: funnel audit, segment map, platform tactics, conversion strategy, Test & Learn, post-registration journey, KPI projections, tool evidence embedded. Every tool claimed must have a screenshot. Every number must have a source.",
+    rubric_focus: "All criteria now in play. The three most common mark-losers at this stage: (1) no tool evidence for claimed tools, (2) same tactic across all segments, (3) KPI targets with no source or baseline. Fix these before submission.",
+    next_milestone: "Session 9 peer review — run the full 10 minutes with your team and get feedback. The Q&A questions to prepare: 'Where does that number come from?', 'What if your test fails?', 'Why is that the right segment?'"
+  }
+};
+
+// ── Benchmark reference (injected into every prompt) ────
+const BENCHMARKS = `
+INDUSTRY BENCHMARKS (cite these by source):
+- Competition entry gate conversion: 25–40% (Klaviyo Sports Benchmark 2024)
+- Gated content (high-intent): 15–25% (HubSpot Content Marketing 2024)  
+- Generic social CTA: 1–3% (SimilarWeb Sports Industry 2024)
+- Welcome email open rate: 50–60% (Mailchimp Sports 2024)
+- Sports avg email open: 28–35% (Mailchimp 2024)
+- Re-engagement email open: 15–20% above sports average when personalised (Klaviyo 2024)
+- Day-1 app install-to-active: 40–55% (AppsFlyer Sports 2024)
+- Day-30 app retention: 10–20% without active engagement mechanics (AppsFlyer Sports 2024)
+- Social referral to sports websites: 2–5% of total traffic (SimilarWeb Sports 2024)
+- Mobile bounce rate uplift for 3s+ load: 53% higher (Google 2024)
+- Personalised segment comms vs broadcast: 3.2× higher conversion (Salesforce Connected Fan 2024)
+- Identity-aligned content vs product-framed: 2.3× higher conversion (Salesforce State of Marketing 2024)
+- Each additional registration form field: ~10% drop-off (Baymard Institute 2024)
+- F1 estimated social referral: 8–12% (SimilarWeb estimate)
+`;
+
 async function interpretFinding() {
   const finding = document.getElementById('ai-input').value.trim();
   const type    = document.getElementById('ai-type').value;
+  const session = document.getElementById('ai-session').value;
+
   if (!finding) { alert('Please paste your finding first.'); return; }
-  if (!GEMINI_KEY) { alert('Please save your Gemini API key first.'); return; }
 
   const btn     = document.getElementById('ai-btn');
   const loading = document.getElementById('ai-loading');
   btn.disabled  = true;
   loading.style.display = 'inline';
 
+  const sc = SESSION_CONTEXT[session];
+
   const typeLabels = {
-    tool_output:       'tool output',
-    fan_quote:         'fan quote / social comment',
-    segment_desc:      'segment description',
-    rough_hypothesis:  'hypothesis',
-    strategy_claim:    'strategy claim',
-    any:               'finding',
+    tool_output: 'tool output', fan_quote: 'fan quote / social comment',
+    segment_desc: 'segment description', rough_hypothesis: 'hypothesis',
+    strategy_claim: 'strategy claim', any: 'finding',
   };
 
-  const systemPrompt = `You are an expert marketing analytics coach for Hult International Business School students working on a live Formula E client pitch. Your role is to help students interpret their research findings and build evidence-grounded arguments for their pitch deck.
+  const systemPrompt = `You are Nikhil's AI teaching assistant for Marketing Analytics for Growth at Hult International Business School. You are coaching students working on a live client pitch for Formula E.
 
-Context: Students are working on "Assignment 3 — Bridging the Conversion Gap: From Casual Fan to Loyal User" for Formula E. They need to convert 422M casual social media followers into registered digital ecosystem users (formulae.com, official app, CRM). They must diagnose the conversion gap using tools (SimilarWeb, SparkToro, SEMrush, Apify, Google PageSpeed) and build data-grounded strategies with Test & Learn hypotheses.
+ASSIGNMENT: "Bridging the Conversion Gap: From Casual Fan to Loyal User"
+Formula E has 422M social followers but almost no registered digital ecosystem users (formulae.com, official app, CRM). Student teams must develop a data-driven, segmented strategy to close this gap and present it to Formula E's Marketing Directors in a 10-minute live pitch.
 
-Key frameworks:
-- Segments: Discovery Fan (18-24, TikTok, low intent), Lapsed Engager (25-35, X/Reddit, habit broken), EV Convert (22-40, sustainability identity, framing mismatch), High-Intent Fan (25-40, X/Reddit, high intent)
-- Blockers: the specific reason a segment hasn't converted (not "they don't care" — the actual friction)
-- Triggers: the specific mechanic that addresses the blocker exactly
-- Test & Learn: IF / THEN / MEASURED BY / PASS / FAIL / PIVOT structure with benchmarks
-- Benchmarks: competition mechanics 25-40% conversion, gated content 15-25%, generic CTA 1-3%, welcome email open 50-60%, day-30 app retention 10-20%
+STUDENT'S CURRENT STAGE: ${sc.label}
+- What they should have done by now: ${sc.should_have}
+- Next hard checkpoint: ${sc.checkpoint}
+- Rubric focus at this stage: ${sc.rubric_focus}
+- Next milestone: ${sc.next_milestone}
 
-When a student shares a finding, respond ONLY in this exact JSON format (no markdown, no backticks, no extra text):
+SEGMENTS (starting archetypes — students may have developed their own):
+- Discovery Fan: 18–24, TikTok/Instagram, found FE via algorithm. Blocker: social content is satisfying enough, no habit loop. Trigger: competition/prize mechanic (FOMO).
+- Lapsed Engager: 25–35, X/Reddit. Blocker: habit broke, no re-recruitment moment. Trigger: new season hook.
+- EV Convert: 22–40, Instagram/LinkedIn/clean-tech. Blocker: motorsport framing irrelevant to sustainability identity. Trigger: race-to-road tech story.
+- High-Intent Fan: 25–40, X/Reddit. Blocker: no clear reason to register on the site. Trigger: exclusive access or data.
+
+RUBRIC WEIGHTINGS:
+- Funnel Audit & Market Research: 25%
+- Segmented Audience Map: 10%
+- Data Visualisations: 20%
+- Conversion Strategy & Platform Tactics: 25%
+- Post-Registration Journey: 10%
+- KPI Impact & Measurement: 15%
+- Live Pitch: 10% (overlaps)
+- Tool Evidence Screenshots: 5%
+
+TOOLS STUDENTS USE: SimilarWeb, SparkToro, SEMrush/Google Keyword Planner, Apify/Export Comments, Google PageSpeed Insights, manual UX walkthrough, Brevo/Mailchimp, Looker Studio/Tableau.
+
+TEST & LEARN STRUCTURE: IF [specific tactic + segment] THEN [metric from X% to Y%] MEASURED BY [tool + tracking] PASS [threshold] FAIL [threshold + specific pivot action]
+
+${BENCHMARKS}
+
+GRADING LANGUAGE:
+- A-grade: finding is specific, sourced, annotated, connected to a segment, and linked to a strategic decision
+- B-grade: finding is present with a screenshot but annotation is generic or benchmark is missing
+- C-grade: finding is mentioned but not shown, or shown without interpretation
+- F: tool claimed but no output shown
+
+YOUR ROLE: Act as a tutor who knows exactly where this student is in the project. Be direct, specific, and honest. If their work is behind where it should be, say so clearly. If a finding is weak, say why and give a concrete fix. Never be vague. Always end with ONE specific next action they can take in the next 30 minutes.
+
+Respond ONLY in this exact JSON (no markdown, no backticks, no preamble):
 {
-  "finding_type": "brief label of what type of finding this is",
-  "what_it_proves": "in 2-3 sentences, exactly what claim this finding supports for the pitch",
-  "which_segment": "which segment(s) this finding is most relevant to and why",
-  "pitch_placement": "exactly which slide/section this belongs in and why",
-  "annotation": "the one-line annotation to write on the screenshot or next to this finding in the deck",
+  "finding_type": "2-4 word label for what type of finding this is",
+  "project_status": "ahead|on_track|behind",
+  "project_status_reason": "1-2 sentences: are they where they should be at this stage? Be honest and specific.",
+  "what_it_proves": "2-3 sentences: exactly what claim this finding supports — specific to Formula E, not generic",
+  "which_segment": "which segment(s) this is most relevant to and exactly why",
+  "rubric_connection": "which rubric criterion this addresses, what grade level it reaches, and what would push it to A-grade",
+  "pitch_placement": "exactly which slide/section and where in that slide — be specific about narrative placement",
+  "one_line_finding": "a polished sentence ready to paste into the pitch deck — include a number if possible",
+  "annotation": "the 1-line annotation to write on the screenshot itself",
   "strength": "strong|moderate|weak",
-  "strength_reason": "why this evidence is strong/moderate/weak",
-  "what_is_missing": "what additional evidence would make this finding stronger",
-  "panel_challenge": "the hardest question Tamara's Formula E panel will ask about this finding",
-  "panel_answer": "how to answer that challenge with confidence",
-  "benchmark_to_cite": "the most relevant industry benchmark number that contextualises this finding (include source)",
-  "one_line_finding": "a single polished sentence ready to paste into the pitch deck"
+  "strength_reason": "why — be direct",
+  "what_is_missing": "the single most important missing piece — name the specific tool output or data point needed",
+  "next_30_minutes": "ONE concrete action they should take right now — tool to run, data to find, or specific thing to write",
+  "benchmark_to_cite": "the specific benchmark number with source that contextualises this finding",
+  "panel_challenge": "the single hardest question Tamara's team will ask about this finding",
+  "panel_answer": "the confident, specific answer — include a number and a source"
 }`;
 
-  const userMessage = `The student is sharing a ${typeLabels[type]}. Here it is:\n\n"${finding}"\n\nInterpret this for them following the JSON format exactly.`;
+  const userMessage = `The student is at stage: ${sc.label}.
+They are sharing a ${typeLabels[type]}.
+
+Their finding:
+"${finding}"
+
+Interpret this as their tutor. Be honest about whether this is enough for their current stage.`;
 
   try {
     const res = await fetch(
@@ -1180,109 +1322,140 @@ When a student shares a finding, respond ONLY in this exact JSON format (no mark
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: systemPrompt + '\n\n' + userMessage }] }],
-          generationConfig: { temperature: 0.3, maxOutputTokens: 1200 }
+          generationConfig: { temperature: 0.2, maxOutputTokens: 1800 }
         })
       }
     );
 
     const data = await res.json();
-
-    if (data.error) {
-      throw new Error(data.error.message || 'API error');
-    }
+    if (data.error) throw new Error(data.error.message || 'API error');
 
     const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    // Strip any markdown backticks if present
     const cleaned = raw.replace(/```json|```/g, '').trim();
+
     let parsed;
     try { parsed = JSON.parse(cleaned); }
     catch(e) {
-      // Fallback: show raw
-      document.getElementById('ai-out-sub').textContent = 'Raw Gemini response';
-      document.getElementById('ai-out-cards').innerHTML = `<div class="card"><div class="card-body" style="white-space:pre-wrap;line-height:1.7;">${cleaned}</div></div>`;
+      document.getElementById('ai-out-sub').textContent = 'AI response';
+      document.getElementById('ai-out-cards').innerHTML =
+        `<div class="card"><div class="card-body" style="white-space:pre-wrap;line-height:1.7;font-size:13px;">${cleaned}</div></div>`;
       document.getElementById('ai-output').classList.add('show');
       return;
     }
 
-    renderAIOutput(parsed, finding);
+    renderAIOutput(parsed, finding, session);
 
   } catch(err) {
-    alert('Error: ' + err.message + '\n\nCheck your API key and try again.');
+    alert('Error: ' + err.message + '\n\nTry again in a few seconds.');
   } finally {
     btn.disabled  = false;
     loading.style.display = 'none';
   }
 }
 
-function renderAIOutput(p, originalFinding) {
-  document.getElementById('ai-out-sub').textContent = p.finding_type || 'Interpreted finding';
+function renderAIOutput(p, originalFinding, session) {
+  const sc = SESSION_CONTEXT[session];
 
-  const strengthColors = { strong: 'greenL', moderate: 'gold', weak: 'orange' };
-  const strengthCol = strengthColors[p.strength] || 'gray';
-  const strengthEmoji = { strong: '✓ Strong evidence', moderate: '~ Moderate evidence', weak: '⚠ Weak evidence' };
+  // Status colours
+  const statusMap = {
+    ahead:    { col: 'var(--greenL)', label: '▲ Ahead of schedule', bg: 'rgba(58,125,68,0.15)' },
+    on_track: { col: 'var(--feBlue)', label: '● On track',          bg: 'rgba(0,160,220,0.1)'  },
+    behind:   { col: 'var(--orange)', label: '▼ Behind — action needed', bg: 'rgba(192,85,42,0.15)' },
+  };
+  const st = statusMap[p.project_status] || statusMap.on_track;
+  const strengthEmoji = { strong:'✓ Strong', moderate:'~ Moderate', weak:'⚠ Weak' };
+  const strengthColMap = { strong:'green', moderate:'gold', weak:'orange' };
+  const sc2 = strengthColMap[p.strength] || 'blue';
 
-  const sections = [
-    {
-      col: 'blue', label: 'What this proves',
-      content: `<div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">${p.what_it_proves || ''}</div>
-                <div style="font-size:12px;color:var(--gray);">Relevant to: <strong style="color:var(--feBlue);">${p.which_segment || ''}</strong></div>`
-    },
-    {
-      col: 'green', label: 'Pitch deck placement',
-      content: `<div style="font-size:13px;color:var(--ivory);margin-bottom:8px;">${p.pitch_placement || ''}</div>
-                <div style="background:var(--tealD);padding:10px 14px;border-left:3px solid var(--feBlue);margin-top:8px;">
-                  <div style="font-size:10px;font-weight:700;color:var(--feBlue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">One-line finding for your deck</div>
-                  <div style="font-size:13px;color:var(--white);font-style:italic;">"${p.one_line_finding || ''}"</div>
-                </div>
-                <div style="margin-top:10px;font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">Annotation:</strong> ${p.annotation || ''}</div>`
-    },
-    {
-      col: strengthCol === 'greenL' ? 'green' : strengthCol === 'gold' ? 'gold' : 'orange',
-      label: `Evidence quality · ${strengthEmoji[p.strength] || ''}`,
-      content: `<div style="font-size:13px;color:var(--ivory);margin-bottom:8px;">${p.strength_reason || ''}</div>
-                <div style="font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">To strengthen this:</strong> ${p.what_is_missing || ''}</div>
-                <div style="margin-top:8px;font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">Benchmark to cite:</strong> ${p.benchmark_to_cite || ''}</div>`
-    },
-    {
-      col: 'purple', label: '⚡ Panel challenge — prepare this answer',
-      content: `<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:8px;">"${p.panel_challenge || ''}"</div>
-                <div style="background:var(--surfaceL);padding:10px 14px;border-left:3px solid #B060A0;">
-                  <div style="font-size:10px;font-weight:700;color:#B060A0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Your answer</div>
-                  <div style="font-size:13px;color:var(--ivory);line-height:1.6;">${p.panel_answer || ''}</div>
-                </div>`
-    }
-  ];
-
-  const colMap = { blue:'blue', green:'green', gold:'gold', orange:'orange', purple:'purple', teal:'teal', greenL:'green' };
+  document.getElementById('ai-out-sub').textContent = `${p.finding_type || 'Interpreted finding'} · ${sc.label}`;
 
   let html = '';
-  sections.forEach(sec => {
-    const col = colMap[sec.col] || 'blue';
-    html += `<div class="evidence-card ${col}" style="margin-bottom:12px;">
-      <div class="ev-label ${col}">${sec.label}</div>
-      ${sec.content}
-    </div>`;
-  });
+
+  // ① Project status banner
+  html += `<div style="background:${st.bg};border:1px solid ${st.col};border-left:4px solid ${st.col};padding:14px 18px;margin-bottom:10px;">
+    <div style="font-size:10px;font-weight:700;color:${st.col};letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;">${st.label}</div>
+    <div style="font-size:13px;color:var(--ivory);line-height:1.5;">${p.project_status_reason || ''}</div>
+    <div style="font-size:11px;color:var(--gray);margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);">
+      <strong style="color:var(--white);">Next checkpoint:</strong> ${sc.checkpoint}
+    </div>
+  </div>`;
+
+  // ② What it proves + segment
+  html += `<div class="evidence-card blue" style="margin-bottom:10px;">
+    <div class="ev-label blue">What this finding proves</div>
+    <div style="font-size:13.5px;color:var(--white);font-weight:600;margin-bottom:8px;line-height:1.5;">${p.what_it_proves || ''}</div>
+    <div style="font-size:12px;color:var(--gray);">Relevant to: <strong style="color:var(--feBlue);">${p.which_segment || ''}</strong></div>
+  </div>`;
+
+  // ③ Rubric + pitch placement
+  html += `<div class="evidence-card green" style="margin-bottom:10px;">
+    <div class="ev-label green">Rubric connection & pitch placement</div>
+    <div style="font-size:12.5px;color:var(--ivory);margin-bottom:10px;line-height:1.5;">${p.rubric_connection || ''}</div>
+    <div style="background:var(--tealD);padding:10px 14px;border-left:3px solid var(--feBlue);margin-bottom:10px;">
+      <div style="font-size:10px;font-weight:700;color:var(--feBlue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Slide placement</div>
+      <div style="font-size:12.5px;color:var(--ivory);">${p.pitch_placement || ''}</div>
+    </div>
+    <div style="background:var(--surfaceL);padding:10px 14px;border-left:3px solid var(--greenL);">
+      <div style="font-size:10px;font-weight:700;color:var(--greenL);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">One-line finding — paste this into your deck</div>
+      <div style="font-size:13px;color:var(--white);font-style:italic;">"${p.one_line_finding || ''}"</div>
+      <div style="font-size:11px;color:var(--gray);margin-top:6px;"><strong style="color:var(--ivory);">Screenshot annotation:</strong> ${p.annotation || ''}</div>
+    </div>
+  </div>`;
+
+  // ④ Evidence strength
+  html += `<div class="evidence-card ${sc2}" style="margin-bottom:10px;">
+    <div class="ev-label ${sc2}">Evidence quality · ${strengthEmoji[p.strength] || ''}</div>
+    <div style="font-size:13px;color:var(--ivory);margin-bottom:8px;line-height:1.5;">${p.strength_reason || ''}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px;">
+      <div style="background:var(--surfaceL);padding:10px 12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">What's missing</div>
+        <div style="font-size:12px;color:var(--ivory);line-height:1.5;">${p.what_is_missing || ''}</div>
+      </div>
+      <div style="background:var(--surfaceL);padding:10px 12px;">
+        <div style="font-size:10px;font-weight:700;color:var(--feBlue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Benchmark to cite</div>
+        <div style="font-size:12px;color:var(--ivory);line-height:1.5;">${p.benchmark_to_cite || ''}</div>
+      </div>
+    </div>
+  </div>`;
+
+  // ⑤ Next 30 minutes — most important card
+  html += `<div style="background:var(--tealD);border:2px solid var(--feBlue);padding:16px 20px;margin-bottom:10px;">
+    <div style="font-size:10px;font-weight:700;color:var(--feBlue);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:8px;">⏱ Your next 30 minutes — do this now</div>
+    <div style="font-size:14px;color:var(--white);font-weight:600;line-height:1.5;">${p.next_30_minutes || ''}</div>
+    <div style="font-size:11px;color:var(--tealL);margin-top:8px;">Next milestone: ${sc.next_milestone}</div>
+  </div>`;
+
+  // ⑥ Panel challenge
+  html += `<div class="evidence-card purple" style="margin-bottom:10px;">
+    <div class="ev-label purple">⚡ Panel challenge — Tamara's team will ask this</div>
+    <div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:10px;line-height:1.5;">"${p.panel_challenge || ''}"</div>
+    <div style="background:var(--surfaceL);padding:10px 14px;border-left:3px solid #B060A0;">
+      <div style="font-size:10px;font-weight:700;color:#B060A0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Your confident answer</div>
+      <div style="font-size:13px;color:var(--ivory);line-height:1.6;">${p.panel_answer || ''}</div>
+    </div>
+  </div>`;
 
   document.getElementById('ai-out-cards').innerHTML = html;
   document.getElementById('ai-output').classList.add('show');
-
-  // Store for copy
-  window._lastAIOutput = { parsed: p, original: originalFinding };
+  window._lastAIOutput = { parsed: p, session: SESSION_CONTEXT[session].label };
 }
 
 function copyAI() {
   if (!window._lastAIOutput) return;
   const p = window._lastAIOutput.parsed;
   const text = [
+    `STAGE: ${window._lastAIOutput.session}`,
+    `PROJECT STATUS: ${p.project_status} — ${p.project_status_reason}`,
     `WHAT IT PROVES: ${p.what_it_proves}`,
     `SEGMENT: ${p.which_segment}`,
+    `RUBRIC CONNECTION: ${p.rubric_connection}`,
     `PITCH PLACEMENT: ${p.pitch_placement}`,
     `ONE-LINE FINDING: "${p.one_line_finding}"`,
     `ANNOTATION: ${p.annotation}`,
     `EVIDENCE STRENGTH: ${p.strength} — ${p.strength_reason}`,
-    `TO STRENGTHEN: ${p.what_is_missing}`,
+    `WHAT'S MISSING: ${p.what_is_missing}`,
     `BENCHMARK: ${p.benchmark_to_cite}`,
+    `NEXT 30 MINUTES: ${p.next_30_minutes}`,
     `PANEL CHALLENGE: "${p.panel_challenge}"`,
     `YOUR ANSWER: ${p.panel_answer}`,
   ].join('\n\n');
@@ -1292,6 +1465,7 @@ function copyAI() {
     if (btn) { btn.textContent = 'COPIED ✓'; setTimeout(() => btn.textContent = 'COPY ALL', 2000); }
   });
 }
+
 
 </script>
 </body>
