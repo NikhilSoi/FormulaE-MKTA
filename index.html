@@ -209,6 +209,11 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
+}
+
 .output-header {
   display: flex;
   align-items: center;
@@ -425,6 +430,10 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
   <div class="tab active" onclick="switchTab('assumption')">① Assumption Checker</div>
   <div class="tab" onclick="switchTab('tool')">② Tool → Evidence Map</div>
   <div class="tab" onclick="switchTab('hypothesis')">③ Hypothesis Builder</div>
+  <div class="tab" onclick="switchTab('ai')" style="color:var(--feBlue);border-bottom:2px solid transparent;position:relative;">
+    ④ AI Finding Interpreter
+    <span style="position:absolute;top:8px;right:6px;background:var(--feBlue);color:var(--bg);font-size:8px;font-weight:700;padding:1px 5px;letter-spacing:0.5px;">AI</span>
+  </div>
 </div>
 
 <div class="main">
@@ -647,6 +656,59 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
       <div class="card" style="margin-top:12px;">
         <div class="card-title">Pitch deck placement</div>
         <div class="card-body" id="ho-placement"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!-- PANEL 4: AI FINDING INTERPRETER (Gemini)          -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="panel" id="panel-ai">
+
+    <div class="section-label">Panel 4 of 4 · Powered by Gemini</div>
+    <div class="section-title">AI Finding Interpreter</div>
+    <div class="section-sub">Paste any raw finding — a SparkToro output, an Apify quote, a SimilarWeb number, a rough hypothesis, or your own segment description. The AI tells you what it proves, where it goes in the pitch, how to annotate it, and what the panel will challenge.</div>
+
+    <!-- Interpreter form — key pre-configured, no setup needed -->
+    <div id="ai-form">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:var(--greenL);animation:pulse 2s infinite;"></div>
+        <span style="font-size:11px;font-weight:700;color:var(--greenL);letter-spacing:0.8px;text-transform:uppercase;">Gemini AI · Ready</span>
+        <span style="font-size:10px;color:var(--gray);margin-left:8px;">Powered by Google Gemini · No setup required</span>
+      </div>
+
+      <div class="form-row">
+        <label>What type of finding are you sharing?</label>
+        <select id="ai-type">
+          <option value="tool_output">Tool output (SparkToro, SimilarWeb, Apify, SEMrush, PageSpeed)</option>
+          <option value="fan_quote">Fan quote or Reddit / social comment</option>
+          <option value="segment_desc">My segment description (in my own words)</option>
+          <option value="rough_hypothesis">My rough hypothesis (check if it's grounded)</option>
+          <option value="strategy_claim">A strategy claim I want to make in my pitch</option>
+          <option value="any">Not sure — just interpret this for me</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <label>Paste your finding here</label>
+        <textarea id="ai-input" rows="6" placeholder="Examples:&#10;• SparkToro shows Formula E fans over-index on r/electricvehicles at 3.1× and follow Rivian&#10;• Reddit user: 'I used to be obsessed with FE but Season 10 felt repetitive, stopped watching'&#10;• Our segment is 18-24 year olds who found FE on TikTok and don't go to the website&#10;• We want to run a competition to increase registrations by 50%"></textarea>
+      </div>
+
+      <div class="form-row" style="display:flex;gap:10px;align-items:center;">
+        <button class="btn btn-primary" onclick="interpretFinding()" id="ai-btn">Interpret with Gemini →</button>
+        <button class="btn btn-secondary" onclick="clearAI()">Clear</button>
+        <span id="ai-loading" style="display:none;font-size:12px;color:var(--gray);font-style:italic;">Gemini is thinking...</span>
+      </div>
+
+      <div id="ai-output" class="output" style="margin-top:24px;">
+        <div class="output-header" style="background:linear-gradient(135deg,var(--tealD),#1A2D3A);border-left-color:var(--feBlue);">
+          <div>
+            <div class="output-header-title">✦ Gemini Interpretation</div>
+            <div class="output-header-sub" id="ai-out-sub"></div>
+          </div>
+          <button class="copy-btn" onclick="copyAI()">COPY ALL</button>
+        </div>
+        <div id="ai-out-cards"></div>
       </div>
     </div>
   </div>
@@ -1049,6 +1111,188 @@ function copyHypothesis() {
     setTimeout(() => btn.textContent = 'COPY', 2000);
   });
 }
+// ══════════════════════════════════════════════════════
+// PANEL 4 — GEMINI AI FINDING INTERPRETER
+// ══════════════════════════════════════════════════════
+
+const GEMINI_KEY = 'AIzaSyBM1ueIk5lCtu6T2vUk4S3aXyMVg0nJNi4';
+
+function clearAI() {
+  document.getElementById('ai-input').value = '';
+  document.getElementById('ai-type').value = 'tool_output';
+  document.getElementById('ai-output').classList.remove('show');
+}
+
+async function interpretFinding() {
+  const finding = document.getElementById('ai-input').value.trim();
+  const type    = document.getElementById('ai-type').value;
+  if (!finding) { alert('Please paste your finding first.'); return; }
+  if (!GEMINI_KEY) { alert('Please save your Gemini API key first.'); return; }
+
+  const btn     = document.getElementById('ai-btn');
+  const loading = document.getElementById('ai-loading');
+  btn.disabled  = true;
+  loading.style.display = 'inline';
+
+  const typeLabels = {
+    tool_output:       'tool output',
+    fan_quote:         'fan quote / social comment',
+    segment_desc:      'segment description',
+    rough_hypothesis:  'hypothesis',
+    strategy_claim:    'strategy claim',
+    any:               'finding',
+  };
+
+  const systemPrompt = `You are an expert marketing analytics coach for Hult International Business School students working on a live Formula E client pitch. Your role is to help students interpret their research findings and build evidence-grounded arguments for their pitch deck.
+
+Context: Students are working on "Assignment 3 — Bridging the Conversion Gap: From Casual Fan to Loyal User" for Formula E. They need to convert 422M casual social media followers into registered digital ecosystem users (formulae.com, official app, CRM). They must diagnose the conversion gap using tools (SimilarWeb, SparkToro, SEMrush, Apify, Google PageSpeed) and build data-grounded strategies with Test & Learn hypotheses.
+
+Key frameworks:
+- Segments: Discovery Fan (18-24, TikTok, low intent), Lapsed Engager (25-35, X/Reddit, habit broken), EV Convert (22-40, sustainability identity, framing mismatch), High-Intent Fan (25-40, X/Reddit, high intent)
+- Blockers: the specific reason a segment hasn't converted (not "they don't care" — the actual friction)
+- Triggers: the specific mechanic that addresses the blocker exactly
+- Test & Learn: IF / THEN / MEASURED BY / PASS / FAIL / PIVOT structure with benchmarks
+- Benchmarks: competition mechanics 25-40% conversion, gated content 15-25%, generic CTA 1-3%, welcome email open 50-60%, day-30 app retention 10-20%
+
+When a student shares a finding, respond ONLY in this exact JSON format (no markdown, no backticks, no extra text):
+{
+  "finding_type": "brief label of what type of finding this is",
+  "what_it_proves": "in 2-3 sentences, exactly what claim this finding supports for the pitch",
+  "which_segment": "which segment(s) this finding is most relevant to and why",
+  "pitch_placement": "exactly which slide/section this belongs in and why",
+  "annotation": "the one-line annotation to write on the screenshot or next to this finding in the deck",
+  "strength": "strong|moderate|weak",
+  "strength_reason": "why this evidence is strong/moderate/weak",
+  "what_is_missing": "what additional evidence would make this finding stronger",
+  "panel_challenge": "the hardest question Tamara's Formula E panel will ask about this finding",
+  "panel_answer": "how to answer that challenge with confidence",
+  "benchmark_to_cite": "the most relevant industry benchmark number that contextualises this finding (include source)",
+  "one_line_finding": "a single polished sentence ready to paste into the pitch deck"
+}`;
+
+  const userMessage = `The student is sharing a ${typeLabels[type]}. Here it is:\n\n"${finding}"\n\nInterpret this for them following the JSON format exactly.`;
+
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: systemPrompt + '\n\n' + userMessage }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 1200 }
+        })
+      }
+    );
+
+    const data = await res.json();
+
+    if (data.error) {
+      throw new Error(data.error.message || 'API error');
+    }
+
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    // Strip any markdown backticks if present
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    let parsed;
+    try { parsed = JSON.parse(cleaned); }
+    catch(e) {
+      // Fallback: show raw
+      document.getElementById('ai-out-sub').textContent = 'Raw Gemini response';
+      document.getElementById('ai-out-cards').innerHTML = `<div class="card"><div class="card-body" style="white-space:pre-wrap;line-height:1.7;">${cleaned}</div></div>`;
+      document.getElementById('ai-output').classList.add('show');
+      return;
+    }
+
+    renderAIOutput(parsed, finding);
+
+  } catch(err) {
+    alert('Error: ' + err.message + '\n\nCheck your API key and try again.');
+  } finally {
+    btn.disabled  = false;
+    loading.style.display = 'none';
+  }
+}
+
+function renderAIOutput(p, originalFinding) {
+  document.getElementById('ai-out-sub').textContent = p.finding_type || 'Interpreted finding';
+
+  const strengthColors = { strong: 'greenL', moderate: 'gold', weak: 'orange' };
+  const strengthCol = strengthColors[p.strength] || 'gray';
+  const strengthEmoji = { strong: '✓ Strong evidence', moderate: '~ Moderate evidence', weak: '⚠ Weak evidence' };
+
+  const sections = [
+    {
+      col: 'blue', label: 'What this proves',
+      content: `<div style="font-size:14px;font-weight:600;color:var(--white);margin-bottom:8px;">${p.what_it_proves || ''}</div>
+                <div style="font-size:12px;color:var(--gray);">Relevant to: <strong style="color:var(--feBlue);">${p.which_segment || ''}</strong></div>`
+    },
+    {
+      col: 'green', label: 'Pitch deck placement',
+      content: `<div style="font-size:13px;color:var(--ivory);margin-bottom:8px;">${p.pitch_placement || ''}</div>
+                <div style="background:var(--tealD);padding:10px 14px;border-left:3px solid var(--feBlue);margin-top:8px;">
+                  <div style="font-size:10px;font-weight:700;color:var(--feBlue);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">One-line finding for your deck</div>
+                  <div style="font-size:13px;color:var(--white);font-style:italic;">"${p.one_line_finding || ''}"</div>
+                </div>
+                <div style="margin-top:10px;font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">Annotation:</strong> ${p.annotation || ''}</div>`
+    },
+    {
+      col: strengthCol === 'greenL' ? 'green' : strengthCol === 'gold' ? 'gold' : 'orange',
+      label: `Evidence quality · ${strengthEmoji[p.strength] || ''}`,
+      content: `<div style="font-size:13px;color:var(--ivory);margin-bottom:8px;">${p.strength_reason || ''}</div>
+                <div style="font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">To strengthen this:</strong> ${p.what_is_missing || ''}</div>
+                <div style="margin-top:8px;font-size:12px;color:var(--gray);"><strong style="color:var(--ivory);">Benchmark to cite:</strong> ${p.benchmark_to_cite || ''}</div>`
+    },
+    {
+      col: 'purple', label: '⚡ Panel challenge — prepare this answer',
+      content: `<div style="font-size:13px;font-weight:600;color:var(--white);margin-bottom:8px;">"${p.panel_challenge || ''}"</div>
+                <div style="background:var(--surfaceL);padding:10px 14px;border-left:3px solid #B060A0;">
+                  <div style="font-size:10px;font-weight:700;color:#B060A0;letter-spacing:0.8px;text-transform:uppercase;margin-bottom:4px;">Your answer</div>
+                  <div style="font-size:13px;color:var(--ivory);line-height:1.6;">${p.panel_answer || ''}</div>
+                </div>`
+    }
+  ];
+
+  const colMap = { blue:'blue', green:'green', gold:'gold', orange:'orange', purple:'purple', teal:'teal', greenL:'green' };
+
+  let html = '';
+  sections.forEach(sec => {
+    const col = colMap[sec.col] || 'blue';
+    html += `<div class="evidence-card ${col}" style="margin-bottom:12px;">
+      <div class="ev-label ${col}">${sec.label}</div>
+      ${sec.content}
+    </div>`;
+  });
+
+  document.getElementById('ai-out-cards').innerHTML = html;
+  document.getElementById('ai-output').classList.add('show');
+
+  // Store for copy
+  window._lastAIOutput = { parsed: p, original: originalFinding };
+}
+
+function copyAI() {
+  if (!window._lastAIOutput) return;
+  const p = window._lastAIOutput.parsed;
+  const text = [
+    `WHAT IT PROVES: ${p.what_it_proves}`,
+    `SEGMENT: ${p.which_segment}`,
+    `PITCH PLACEMENT: ${p.pitch_placement}`,
+    `ONE-LINE FINDING: "${p.one_line_finding}"`,
+    `ANNOTATION: ${p.annotation}`,
+    `EVIDENCE STRENGTH: ${p.strength} — ${p.strength_reason}`,
+    `TO STRENGTHEN: ${p.what_is_missing}`,
+    `BENCHMARK: ${p.benchmark_to_cite}`,
+    `PANEL CHALLENGE: "${p.panel_challenge}"`,
+    `YOUR ANSWER: ${p.panel_answer}`,
+  ].join('\n\n');
+
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('#panel-ai .copy-btn');
+    if (btn) { btn.textContent = 'COPIED ✓'; setTimeout(() => btn.textContent = 'COPY ALL', 2000); }
+  });
+}
+
 </script>
 </body>
 </html>
