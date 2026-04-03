@@ -3,76 +3,145 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Formula E · Evidence & Hypothesis Builder</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<title>VectorEd · Formula E Evidence & Hypothesis Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:       #0A0E1A;
-  --surface:  #111827;
-  --surfaceL: #1A2540;
-  --tealD:    #2D4A47;
-  --teal:     #3D6B65;
-  --tealL:    #4A8C85;
-  --green:    #3A7D44;
-  --greenL:   #4CAF5A;
+  /* ── VectorEd brand ───────────────── */
+  --ve-bg:      #080C14;        /* near-black, slightly blue */
+  --ve-surface: #0F1520;        /* primary surface */
+  --ve-surfaceL:#162030;        /* elevated surface */
+  --ve-border:  #1E2D42;        /* subtle border */
+  --ve-accent:  #1E6FFF;        /* VectorEd electric blue */
+  --ve-accentL: #4D8FFF;        /* lighter accent */
+  --ve-green:   #00C896;        /* signal green — "intelligence" */
+  --ve-greenD:  #00A07A;
+  --ve-amber:   #F5A623;        /* warm amber — caution/warning */
+  --ve-red:     #E8455A;        /* alert red */
+  --ve-text:    #E8EDF5;        /* primary text */
+  --ve-textSub: #6B7E99;        /* secondary text */
+  --ve-textMid: #A0AEBF;        /* mid text */
+  /* ── Keep Hult/FE accents for card system ── */
+  --bg:       var(--ve-bg);
+  --surface:  var(--ve-surface);
+  --surfaceL: var(--ve-surfaceL);
+  --tealD:    #1A3550;
+  --teal:     #1E6FFF;
+  --tealL:    #4D8FFF;
+  --green:    #00A07A;
+  --greenL:   #00C896;
   --orange:   #C0552A;
-  --gold:     #A07830;
-  --goldL:    #C9A050;
-  --purple:   #7A3060;
-  --feBlue:   #00A0DC;
-  --feBlueLt: #33BBEF;
-  --ivory:    #F5F0E0;
-  --ivoryD:   #EDE8D5;
+  --gold:     #F5A623;
+  --goldL:    #F7BB55;
+  --purple:   #7A4FBF;
+  --feBlue:   #1E6FFF;
+  --feBlueLt: #4D8FFF;
+  --ivory:    #E8EDF5;
+  --ivoryD:   #C8D2E0;
   --white:    #FFFFFF;
-  --gray:     #8A9BB0;
-  --grayD:    #4A5568;
-  --red:      #EF4444;
+  --gray:     var(--ve-textSub);
+  --grayD:    #3A4A5C;
+  --red:      var(--ve-red);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
-  background: var(--bg);
-  color: var(--white);
-  font-family: 'Outfit', sans-serif;
+  background: var(--ve-bg);
+  color: var(--ve-text);
+  font-family: 'Space Grotesk', 'Outfit', sans-serif;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
-/* ── HEADER ─────────────────────────────────── */
+/* ── VECTORED HEADER ─────────────────────────────── */
 .header {
-  background: var(--surface);
-  border-bottom: 2px solid var(--tealD);
-  padding: 18px 32px;
+  background: var(--ve-surface);
+  border-bottom: 1px solid var(--ve-border);
+  padding: 0 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 60px;
   position: sticky; top: 0; z-index: 100;
 }
-.logo {
-  display: flex; align-items: center; gap: 12px;
+
+/* VectorEd logo mark — SVG inline */
+.ve-logo {
+  display: flex; align-items: center; gap: 10px;
 }
-.logo-mark {
-  width: 36px; height: 36px;
-  background: var(--feBlue);
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'DM Mono', monospace;
-  font-size: 13px; font-weight: 500;
-  color: var(--bg);
+.ve-logo-icon {
+  width: 34px; height: 34px; flex-shrink: 0;
 }
-.logo-text {
+.ve-logo-wordmark {
+  display: flex; flex-direction: column; gap: 0;
+}
+.ve-logo-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px; font-weight: 700;
+  color: var(--ve-text);
+  letter-spacing: -0.3px;
+  line-height: 1;
+}
+.ve-logo-name span { color: var(--ve-accent); }
+.ve-logo-sub {
+  font-size: 9px; font-weight: 500;
+  color: var(--ve-textSub);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+/* Divider in header */
+.header-divider {
+  width: 1px; height: 28px;
+  background: var(--ve-border);
+  margin: 0 16px;
+}
+
+/* Tool name in header */
+.header-tool {
+  display: flex; flex-direction: column;
+}
+.header-tool-name {
   font-size: 13px; font-weight: 600;
-  color: var(--gray);
-  letter-spacing: 0.5px;
+  color: var(--ve-text);
+  letter-spacing: -0.2px;
 }
-.logo-text span { color: var(--white); }
-.hult-badge {
-  font-size: 10px; font-weight: 600;
-  color: var(--tealL);
+.header-tool-sub {
+  font-size: 10px; color: var(--ve-textSub);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* Right badges */
+.header-right {
+  display: flex; align-items: center; gap: 10px;
+}
+.badge-hult {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 500;
+  color: var(--ve-textSub);
   letter-spacing: 1px;
   text-transform: uppercase;
-  border: 1px solid var(--tealD);
+  border: 1px solid var(--ve-border);
   padding: 4px 10px;
+}
+.badge-ai {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; font-weight: 700;
+  color: var(--ve-bg);
+  background: var(--ve-green);
+  padding: 4px 9px;
+  letter-spacing: 0.8px;
+  display: flex; align-items: center; gap: 5px;
+}
+.badge-ai::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--ve-bg);
+  animation: pulse 2s infinite;
 }
 
 /* ── TABS ─────────────────────────────────── */
@@ -80,22 +149,23 @@ body {
   display: flex;
   gap: 0;
   padding: 0 32px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--tealD);
+  background: var(--ve-surface);
+  border-bottom: 1px solid var(--ve-border);
 }
 .tab {
-  padding: 14px 24px;
-  font-size: 13px;
+  padding: 13px 22px;
+  font-size: 12.5px;
   font-weight: 500;
-  color: var(--gray);
+  color: var(--ve-textSub);
   cursor: pointer;
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
   user-select: none;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  font-family: 'Space Grotesk', sans-serif;
 }
-.tab:hover { color: var(--white); }
-.tab.active { color: var(--feBlue); border-bottom-color: var(--feBlue); }
+.tab:hover { color: var(--ve-text); }
+.tab.active { color: var(--ve-accent); border-bottom-color: var(--ve-accent); }
 
 /* ── MAIN ─────────────────────────────────── */
 .main {
@@ -416,23 +486,47 @@ textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
 <body>
 
 <div class="header">
-  <div class="logo">
-    <div class="logo-mark">FE</div>
-    <div>
-      <div class="logo-text"><span>Evidence & Hypothesis Builder</span></div>
-      <div style="font-size:10px;color:var(--tealL);letter-spacing:0.5px;margin-top:1px;">Formula E · A3 Assignment Tool</div>
+  <!-- VectorEd logo -->
+  <div class="ve-logo">
+    <!-- SVG logo mark: V shape inside a rounded square with grid dots -->
+    <svg class="ve-logo-icon" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="34" height="34" rx="6" fill="#1E6FFF"/>
+      <!-- V letterform -->
+      <path d="M8 9L13.5 22L17 16.5L20.5 22L26 9" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Signal dots — bottom row -->
+      <circle cx="10" cy="27" r="1.2" fill="white" opacity="0.5"/>
+      <circle cx="14" cy="27" r="1.2" fill="white" opacity="0.7"/>
+      <circle cx="18" cy="27" r="1.2" fill="white" opacity="1"/>
+      <circle cx="22" cy="27" r="1.2" fill="#00C896"/>
+      <circle cx="26" cy="27" r="1.2" fill="#00C896" opacity="0.6"/>
+    </svg>
+    <div class="ve-logo-wordmark">
+      <div class="ve-logo-name">Vector<span>Ed</span></div>
+      <div class="ve-logo-sub">Academic Intelligence Platform</div>
     </div>
   </div>
-  <div class="hult-badge">Marketing Analytics for Growth · Hult</div>
+
+  <div style="display:flex;align-items:center;">
+    <div class="header-divider"></div>
+    <div class="header-tool">
+      <div class="header-tool-name">Evidence & Hypothesis Builder</div>
+      <div class="header-tool-sub">Formula E · A3 Assignment · Marketing Analytics for Growth · Hult</div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <div class="badge-hult">Hult IBS · London</div>
+    <div class="badge-ai">Gemini AI · Live</div>
+  </div>
 </div>
 
 <div class="tabs">
   <div class="tab active" onclick="switchTab('assumption')">① Assumption Checker</div>
   <div class="tab" onclick="switchTab('tool')">② Tool → Evidence Map</div>
   <div class="tab" onclick="switchTab('hypothesis')">③ Hypothesis Builder</div>
-  <div class="tab" onclick="switchTab('ai')" style="color:var(--feBlue);border-bottom:2px solid transparent;position:relative;">
+  <div class="tab" onclick="switchTab('ai')" style="position:relative;">
     ④ AI Finding Interpreter
-    <span style="position:absolute;top:8px;right:6px;background:var(--feBlue);color:var(--bg);font-size:8px;font-weight:700;padding:1px 5px;letter-spacing:0.5px;">AI</span>
+    <span style="position:absolute;top:8px;right:4px;background:var(--ve-green);color:var(--ve-bg);font-size:7px;font-weight:700;padding:1px 5px;letter-spacing:0.5px;">AI</span>
   </div>
 </div>
 
@@ -1468,5 +1562,24 @@ function copyAI() {
 
 
 </script>
+<!-- VectorEd footer -->
+<div style="background:var(--ve-surface);border-top:1px solid var(--ve-border);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;margin-top:40px;">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <svg width="18" height="18" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="34" height="34" rx="6" fill="#1E6FFF"/>
+      <path d="M8 9L13.5 22L17 16.5L20.5 22L26 9" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="18" cy="27" r="1.2" fill="white"/>
+      <circle cx="22" cy="27" r="1.2" fill="#00C896"/>
+    </svg>
+    <span style="font-size:12px;font-weight:600;color:var(--ve-textSub);">VectorEd <span style="color:var(--ve-accent);">Academic Intelligence Platform</span></span>
+  </div>
+  <div style="font-size:10px;color:var(--ve-textSub);letter-spacing:0.3px;">
+    Built for Marketing Analytics for Growth · Hult International Business School · Open source
+  </div>
+  <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--ve-textSub);">
+    Powered by Gemini 2.5 Flash
+  </div>
+</div>
+
 </body>
 </html>
